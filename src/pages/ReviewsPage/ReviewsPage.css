@@ -1,0 +1,290 @@
+/* Base Styles */
+.page-style {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Georgia', serif;
+  line-height: 1.6;
+}
+
+.card-style {
+  margin-bottom: 24px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 24px;
+}
+
+.header-style {
+  background-color: #1a237e;
+  padding: 0 24px;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.title-style {
+  color: #1a237e;
+  text-align: center;
+  margin-bottom: 24px;
+  font-family: 'Palatino', serif;
+}
+
+/* Layout Components */
+.main-layout {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.content-area {
+  padding: 24px;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  font-family: 'Palatino', serif;
+}
+
+.brand-icon {
+  margin-right: 12px;
+  font-size: 24px;
+}
+
+.brand-name {
+  white-space: nowrap;
+}
+
+/* Navigation */
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-button {
+  color: white;
+  font-weight: normal;
+  min-width: 80px;
+}
+
+.nav-button.active {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.mobile-menu-button {
+  color: white;
+  font-size: 18px;
+}
+
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.mobile-nav-button {
+  text-align: left;
+  color: white;
+}
+
+.mobile-nav-button.active {
+  font-weight: bold;
+}
+
+/* Search Components */
+.search-container {
+  margin-bottom: 24px;
+}
+
+.search-space {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.book-select {
+  min-width: 200px;
+}
+
+.vertical-space {
+  flex-direction: column;
+}
+
+/* Review Cards */
+.reviews-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.book-card {
+  margin-bottom: 16px;
+  background-color: #fafafa;
+}
+
+.review-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.review-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.review-id {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.id-label {
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.review-date {
+  display: flex;
+  align-items: center;
+  font-size: 0.85em;
+}
+
+.review-icon, .content-icon, .footer-icon {
+  margin-right: 8px;
+  color: #1890ff;
+}
+
+.tag-icon {
+  margin-right: 4px;
+}
+
+.book-tag {
+  margin-left: 8px;
+}
+
+.reviewer-name {
+  white-space: nowrap;
+}
+
+.review-content {
+  margin: 8px 0 0 0;
+}
+
+.review-count {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Utility Classes */
+.loading-container {
+  text-align: center;
+  padding: 40px;
+}
+
+.error-alert {
+  margin-bottom: 24px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+}
+
+.book-title {
+  margin-bottom: 16px !important;
+}
+
+.refresh-button {
+  margin-left: 0;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 992px) {
+  .page-style {
+    padding: 16px;
+  }
+  
+  .content-area {
+    padding: 16px;
+  }
+  
+  .book-select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-button {
+    min-width: 60px;
+    padding: 0 8px;
+  }
+  
+  .review-id-tag {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .title-style {
+    font-size: 1.5rem !important;
+  }
+  
+  .brand-name {
+    font-size: 1rem;
+  }
+  
+  .search-space {
+    gap: 8px;
+  }
+  
+  .refresh-button {
+    width: 100%;
+  }
+  
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .book-tag {
+    margin-left: 0;
+    margin-top: 4px;
+  }
+  
+  .review-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  
+  
+}

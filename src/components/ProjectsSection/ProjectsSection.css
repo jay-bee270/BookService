@@ -1,0 +1,207 @@
+.projects-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.projects-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.projects-extra {
+  color: #666;
+  font-size: 12px;
+}
+
+.projects-stats {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  color: #262626;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  display: block;
+  color: #666;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.project-item {
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.project-item:hover {
+  border-color: #d9d9d9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.project-title-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.project-icon {
+  width: 32px;
+  height: 32px;
+  background: #f0f2f5;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1890ff;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.project-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-name {
+  font-weight: 500;
+  color: #262626;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-deadline {
+  color: #666;
+  font-size: 11px;
+}
+
+.project-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.project-item:hover .project-actions {
+  opacity: 1;
+}
+
+.project-progress-section {
+  margin-bottom: 12px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.progress-text {
+  color: #666;
+  font-size: 12px;
+}
+
+.progress-percentage {
+  color: #262626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.progress-bar {
+  margin-bottom: 0;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.participants-avatars {
+  display: flex;
+  gap: 4px;
+}
+
+.participant-avatar {
+  background-color: #1890ff;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.participant-avatar:hover {
+  transform: scale(1.1);
+}
+
+.project-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating-text {
+  color: #666;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+  }
+
+  .project-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .project-actions {
+    opacity: 1;
+  }
+}

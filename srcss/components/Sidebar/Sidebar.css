@@ -1,0 +1,63 @@
+.sidebar-container {
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-content {
+  padding: 16px;
+}
+
+.sidebar-menu {
+  border: none;
+}
+
+.sidebar-menu .ant-menu-item-selected {
+  background-color: #e6f7ff !important;
+  border-radius: 8px;
+}
+
+.sidebar-menu .ant-menu-item {
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu .ant-menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.help-card {
+  margin-top: 24px;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border: none;
+  border-radius: 12px;
+}
+
+.help-content {
+  color: white;
+  text-align: center;
+}
+
+.help-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.help-subtitle {
+  font-size: 12px;
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+.help-button {
+  border-color: white;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.help-button:hover {
+  background-color: white;
+  color: #1890ff;
+}

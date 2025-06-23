@@ -1,0 +1,90 @@
+.orders-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.orders-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item:hover {
+  background-color: #fafafa;
+  border-radius: 8px;
+  margin: 0 -8px;
+  padding: 12px 8px;
+}
+
+.order-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-info {
+  flex: 1;
+}
+
+.order-id {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #262626;
+}
+
+.order-amount {
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.order-date {
+  color: #999;
+  font-size: 11px;
+}
+
+.order-actions {
+  display: flex;
+  gap: 4px;
+  margin-right: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.order-item:hover .order-actions {
+  opacity: 1;
+}
+
+.action-button {
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.action-button:hover {
+  color: #1890ff;
+}
+
+.order-status {
+  font-size: 12px;
+}
+
+.order-status .ant-badge-status-text {
+  color: #666;
+}

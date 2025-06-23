@@ -1,0 +1,13 @@
+.dashboard-container {
+  width: 100%;
+}
+
+.dashboard-row {
+  margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-row .ant-col {
+    margin-bottom: 24px;
+  }
+}

@@ -1,0 +1,34 @@
+.ant-layout {
+  background: #f0f2f5;
+}
+
+.ant-card {
+  transition: all 0.3s ease;
+}
+
+.ant-statistic-content {
+  color: #262626;
+}
+
+.ant-progress-bg {
+  border-radius: 4px;
+}
+
+.ant-badge-status-text {
+  color: #666;
+}
+
+/* Global responsive styles */
+@media (max-width: 1200px) {
+  .ant-layout-content {
+    margin: 16px 8px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ant-layout-content {
+    margin: 8px 4px;
+    padding: 8px;
+  }
+}

@@ -1,0 +1,184 @@
+.signup-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.signup-card {
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.signup-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-top: 16px;
+}
+
+.signup-title {
+  color: #262626;
+  font-weight: 700;
+  margin-bottom: 8px !important;
+}
+
+.signup-subtitle {
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+.signup-button {
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.signup-button:hover,
+.signup-button:focus {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.signup-button:disabled {
+  background: #d9d9d9;
+  transform: none;
+  box-shadow: none;
+}
+
+.password-strength {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+.password-criteria {
+  margin-top: 12px;
+}
+
+.criteria-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.signin-link {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.security-notice {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f6f8ff;
+  border-radius: 8px;
+  border: 1px solid #e6f0ff;
+}
+
+.demo-notice {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff7e6;
+  border-radius: 8px;
+  border: 1px solid #ffd591;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .signup-container {
+    padding: 10px;
+  }
+
+  .signup-card {
+    margin: 0;
+    border-radius: 12px;
+  }
+
+  .signup-header {
+    margin-bottom: 24px;
+  }
+
+  .signup-title {
+    font-size: 24px !important;
+  }
+
+  .password-strength {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-card {
+    border-radius: 8px;
+  }
+
+  .signup-title {
+    font-size: 20px !important;
+  }
+
+  .signup-subtitle {
+    font-size: 14px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .signup-card {
+    background: white;
+    border: 2px solid #000;
+  }
+
+  .signup-button {
+    background: #000;
+    color: white;
+  }
+
+  .signup-button:hover {
+    background: #333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .signup-button {
+    transition: none;
+  }
+
+  .signup-button:hover {
+    transform: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.ant-input:focus,
+.ant-input-password:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.ant-btn:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}

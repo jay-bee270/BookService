@@ -1,0 +1,26 @@
+.bar-chart-container {
+  height: 200px;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  padding: 20px 0;
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(180deg, #1890ff 0%, #096dd9 100%);
+  border-radius: 4px 4px 0 0;
+  min-height: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bar:hover,
+.bar.hovered {
+  background: linear-gradient(180deg, #40a9ff 0%, #1890ff 100%);
+  transform: scaleY(1.05);
+}
+
+.bar:active {
+  transform: scaleY(0.95);
+}

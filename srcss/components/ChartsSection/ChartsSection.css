@@ -1,0 +1,27 @@
+.charts-section {
+  width: 100%;
+}
+
+.chart-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.chart-extra {
+  color: #666;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .charts-section .ant-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
