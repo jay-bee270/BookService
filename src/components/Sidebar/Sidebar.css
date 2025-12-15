@@ -10,6 +10,9 @@
   z-index: 1000;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .sidebar-logo {
@@ -19,6 +22,7 @@
   padding: 0 24px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -60,8 +64,8 @@
   padding: 20px 0;
   background: transparent;
   flex: 1;
-  overflow-y: auto;
-  max-height: calc(100vh - 280px);
+  overflow: visible;
+  min-height: 0;
 }
 
 .sidebar-menu .ant-menu-item,
@@ -136,10 +140,9 @@
 }
 
 .sidebar-upgrade {
-  position: absolute;
-  bottom: 24px;
-  left: 16px;
-  right: 16px;
+  padding: 0 16px 24px;
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .upgrade-card {
@@ -149,6 +152,7 @@
   text-align: center;
   color: white;
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  margin-top: 60%;
 }
 
 .upgrade-icon {
@@ -203,33 +207,18 @@
   cursor: pointer;
   margin-left: -0.5%;
   margin-top: 7%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Close button inside sidebar (mobile only) */
-.sidebar-close-button {
-  position: absolute;
-  top: 20px;
-  right: 16px;
-  z-index: 1;
-  display: none;
+.mobile-menu-toggle.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.sidebar-close-button .close-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.04);
-  color: #595959;
-  font-size: 16px;
-  transition: all 0.2s ease;
-}
-
-.sidebar-close-button .close-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
-  color: #262626;
+.mobile-menu-toggle.hidden {
+  opacity: 0;
+  transform: translateY(-100px);
+  pointer-events: none;
 }
 
 /* Overlay for mobile */
@@ -248,9 +237,7 @@
 /* Tablet Responsive (768px - 1024px) */
 @media (max-width: 1024px) {
   .sidebar-upgrade {
-    bottom: 16px;
-    left: 12px;
-    right: 12px;
+    padding: 0 12px 16px;
   }
   
   .upgrade-card {
@@ -287,15 +274,9 @@
     display: block;
   }
   
-  /* Show close button in sidebar on mobile */
-  .sidebar-close-button {
-    display: block;
-  }
-  
   .sidebar-logo {
     height: 70px;
     padding: 0 20px;
-    padding-right: 60px; /* Space for close button */
   }
   
   .logo-icon {
@@ -314,7 +295,6 @@
   
   .sidebar-menu {
     padding: 16px 0;
-    max-height: calc(100vh - 240px);
   }
   
   .sidebar-menu .ant-menu-item {
@@ -324,9 +304,7 @@
   }
   
   .sidebar-upgrade {
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    padding: 0 12px 12px;
   }
   
   .upgrade-card {
@@ -379,6 +357,10 @@
     font-size: 14px;
     margin-right: 10px;
   }
+  
+  .sidebar-upgrade {
+    padding: 0 8px 8px;
+  }
 }
 
 /* Extra Small Mobile (below 480px) */
@@ -388,12 +370,6 @@
     left: 16px;
     width: 36px;
     height: 36px;
-  }
-  
-  .sidebar-upgrade {
-    bottom: 8px;
-    left: 8px;
-    right: 8px;
   }
   
   .upgrade-card {
@@ -406,16 +382,56 @@
   
   .upgrade-card p {
     font-size: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .upgrade-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  
+  .upgrade-btn {
+    padding: 6px 12px;
+    font-size: 10px;
   }
 }
 
 /* Landscape Mobile */
 @media (max-height: 500px) and (orientation: landscape) {
-  .sidebar-upgrade {
-    display: none;
+  .sidebar-logo {
+    height: 50px;
   }
   
   .sidebar-menu {
-    max-height: calc(100vh - 100px);
+    padding: 8px 0;
+  }
+  
+  .sidebar-menu .ant-menu-item {
+    height: 36px;
+    line-height: 36px;
+    margin: 2px 12px;
+  }
+  
+  .sidebar-upgrade {
+    padding: 0 12px 8px;
+  }
+  
+  .upgrade-card {
+    padding: 10px;
+  }
+  
+  .upgrade-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  .upgrade-card h4 {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  
+  .upgrade-card p {
+    font-size: 10px;
+    margin-bottom: 8px;
   }
 }

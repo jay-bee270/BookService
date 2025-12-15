@@ -24,6 +24,8 @@ function Sidebar({ collapsed, onLogout }) {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [showToggleButton, setShowToggleButton] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   // Detect mobile screen
   useEffect(() => {
@@ -38,6 +40,26 @@ function Sidebar({ collapsed, onLogout }) {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Handle scroll to hide/show toggle button
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down
+        setShowToggleButton(false)
+      } else {
+        // Scrolling up
+        setShowToggleButton(true)
+      }
+      
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY])
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -107,7 +129,7 @@ function Sidebar({ collapsed, onLogout }) {
       {/* Mobile Menu Toggle Button */}
       {isMobile && (
         <Button
-          className="mobile-menu-toggle"
+          className={`mobile-menu-toggle ${showToggleButton ? 'visible' : 'hidden'}`}
           icon={mobileOpen ? <CloseOutlined /> : <MenuOutlined />}
           onClick={() => setMobileOpen(!mobileOpen)}
           type="primary"
