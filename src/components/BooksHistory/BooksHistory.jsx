@@ -1,199 +1,151 @@
 "use client"
 
-import { Card, Badge, Button, Avatar, Tooltip, Tag } from "antd"
-import {
-  EyeOutlined,
-  UndoOutlined,
-  UserOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  LockOutlined,
-  UnlockOutlined,
-} from "@ant-design/icons"
+import { useState, useEffect } from "react"
+import { Card, List, Tag, Space, Spin } from "antd"
+import { BookOutlined, ClockCircleOutlined, UserOutlined } from "@ant-design/icons"
 import "./BooksHistory.css"
 
 const BooksHistory = () => {
-  const adminActions = [
-    {
-      id: "ACT-2024-001",
-      action: "Book Added",
-      details: "The Midnight Library by Matt Haig",
-      admin: "admin.johnson",
-      adminName: "Sarah Johnson",
-      timestamp: "Today, 2:20 PM",
-      status: "success",
-      statusText: "Completed",
-      actionType: "add",
-      category: "Fiction",
-      isbn: "9780525559474",
-    },
-    {
-      id: "ACT-2024-002",
-      action: "Book Edited",
-      details: "Atomic Habits - Updated description",
-      admin: "admin.smith",
-      adminName: "John Smith",
-      timestamp: "Today, 11:45 AM",
-      status: "success",
-      statusText: "Completed",
-      actionType: "edit",
-      category: "Self-Help",
-      isbn: "9781847941831",
-    },
-    {
-      id: "ACT-2024-003",
-      action: "User Suspended",
-      details: "user.thompson - Policy violation",
-      admin: "admin.davis",
-      adminName: "Mike Davis",
-      timestamp: "Yesterday, 4:30 PM",
-      status: "warning",
-      statusText: "Requires Review",
-      actionType: "suspend",
-      category: "User Management",
-      duration: "7 days",
-    },
-    {
-      id: "ACT-2024-004",
-      action: "Book Deleted",
-      details: "Duplicate entry: Project Hail Mary",
-      admin: "admin.wilson",
-      adminName: "Emily Wilson",
-      timestamp: "Jun 10, 2:15 PM",
-      status: "error",
-      statusText: "Irreversible",
-      actionType: "delete",
-      category: "Sci-Fi",
-      isbn: "9780593135204",
-    },
-    {
-      id: "ACT-2024-005",
-      action: "Category Added",
-      details: "New category: Graphic Novels",
-      admin: "admin.johnson",
-      adminName: "Sarah Johnson",
-      timestamp: "Jun 9, 10:20 AM",
-      status: "success",
-      statusText: "Completed",
-      actionType: "system",
-      category: "System",
-    },
-  ]
+  const [activities, setActivities] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "success":
-        return "#52c41a"
-      case "processing":
-        return "#1890ff"
-      case "warning":
-        return "#faad14"
-      case "error":
-        return "#ff4d4f"
-      default:
-        return "#d9d9d9"
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      try {
+        // Fetch recent books
+        const booksRes = await fetch("https://book-services-group-a.onrender.com/api/v1/products")
+        const books = await booksRes.json()
+
+        // Generate mock activities based on books
+        const mockActivities = books.slice(0, 8).map((book, index) => ({
+          id: index + 1,
+          type: ["added", "updated", "reviewed", "recommended"][Math.floor(Math.random() * 4)],
+          title: book.productTitle,
+          author: book.productAuthor || "Unknown Author",
+          user: ["John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson"][Math.floor(Math.random() * 4)],
+          timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+          description: book.productDescription?.substring(0, 100) + "..." || "No description available",
+        }))
+
+        // Sort by timestamp (newest first)
+        mockActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+
+        setActivities(mockActivities)
+      } catch (error) {
+        console.error("Error fetching activities:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  const getActionIcon = (type) => {
+    fetchRecentActivities()
+  }, [])
+
+  const getActivityIcon = (type) => {
     switch (type) {
-      case "add":
-        return <PlusOutlined style={{ color: "#52c41a" }} />
-      case "edit":
-        return <EditOutlined style={{ color: "#1890ff" }} />
-      case "delete":
-        return <DeleteOutlined style={{ color: "#ff4d4f" }} />
-      case "suspend":
-        return <LockOutlined style={{ color: "#faad14" }} />
-      case "unsuspend":
-        return <UnlockOutlined style={{ color: "#52c41a" }} />
-      case "system":
-        return <EditOutlined style={{ color: "#722ed1" }} />
+      case "added":
+        return <BookOutlined style={{ color: "#52c41a" }} />
+      case "updated":
+        return <BookOutlined style={{ color: "#1890ff" }} />
+      case "reviewed":
+        return <BookOutlined style={{ color: "#faad14" }} />
+      case "recommended":
+        return <BookOutlined style={{ color: "#722ed1" }} />
       default:
-        return <EditOutlined />
+        return <BookOutlined />
     }
   }
 
-  const handleActionClick = (actionId) => {
-    console.log(`Admin action clicked: ${actionId}`)
-  }
-
-  const handleViewAction = (actionId) => {
-    console.log(`View admin action: ${actionId}`)
-  }
-
-  const handleUndoAction = (actionId, actionType) => {
-    if (actionType === "delete") {
-      console.log(`Cannot undo delete action: ${actionId}`)
-      return
+  const getActivityColor = (type) => {
+    switch (type) {
+      case "added":
+        return "success"
+      case "updated":
+        return "processing"
+      case "reviewed":
+        return "warning"
+      case "recommended":
+        return "purple"
+      default:
+        return "default"
     }
-    console.log(`Undo admin action: ${actionId}`)
+  }
+
+  const getActivityText = (type) => {
+    switch (type) {
+      case "added":
+        return "Added"
+      case "updated":
+        return "Updated"
+      case "reviewed":
+        return "Reviewed"
+      case "recommended":
+        return "Recommended"
+      default:
+        return "Activity"
+    }
+  }
+
+  const formatTimeAgo = (timestamp) => {
+    const now = new Date()
+    const time = new Date(timestamp)
+    const diffInHours = Math.floor((now - time) / (1000 * 60 * 60))
+
+    if (diffInHours < 1) return "Just now"
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays}d ago`
+    return time.toLocaleDateString()
+  }
+
+  if (loading) {
+    return (
+      <Card title="Recent Activity" className="history-card">
+        <div className="history-loading">
+          <Spin tip="Loading activities..." />
+        </div>
+      </Card>
+    )
   }
 
   return (
-    <Card title="Admin Activity Log" className="books-history-card" bodyStyle={{ padding: "20px" }}>
-      <div className="books-history-list">
-        {adminActions.map((activity, index) => (
-          <div key={index} className="book-activity-item" onClick={() => handleActionClick(activity.id)}>
+    <Card title="Recent Activity" className="history-card">
+      <List
+        itemLayout="horizontal"
+        dataSource={activities}
+        renderItem={(activity) => (
+          <List.Item className="activity-item">
             <div className="activity-content">
               <div className="activity-header">
-                <div className="activity-icon">{getActionIcon(activity.actionType)}</div>
+                <div className="activity-icon">{getActivityIcon(activity.type)}</div>
                 <div className="activity-info">
-                  <div className="activity-title">{activity.action}</div>
-                  <div className="activity-details">{activity.details}</div>
-                  <div className="activity-meta">
-                    <Tooltip title={activity.adminName}>
-                      <div className="activity-admin">
-                        <Avatar size="small" icon={<UserOutlined />} />
-                        <span>{activity.admin}</span>
-                      </div>
-                    </Tooltip>
-                    <span className="activity-id">{activity.id}</span>
-                    {activity.category && (
-                      <span className="activity-category">
-                        <Tag size="small" color="blue">
-                          {activity.category}
-                        </Tag>
-                      </span>
-                    )}
+                  <div className="activity-main">
+                    <span className="activity-action">
+                      <Tag color={getActivityColor(activity.type)} size="small">
+                        {getActivityText(activity.type)}
+                      </Tag>
+                    </span>
+                    <span className="activity-title">{activity.title}</span>
                   </div>
-                  <div className="activity-timestamp">{activity.timestamp}</div>
+                  <div className="activity-meta">
+                    <Space size="small">
+                      <span className="activity-author">by {activity.author}</span>
+                      <span className="activity-separator">•</span>
+                      <span className="activity-user">
+                        <UserOutlined /> {activity.user}
+                      </span>
+                      <span className="activity-separator">•</span>
+                      <span className="activity-time">
+                        <ClockCircleOutlined /> {formatTimeAgo(activity.timestamp)}
+                      </span>
+                    </Space>
+                  </div>
                 </div>
               </div>
-              <div className="activity-actions">
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<EyeOutlined />}
-                  className="action-button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleViewAction(activity.id)
-                  }}
-                />
-                <Tooltip title={activity.actionType === "delete" ? "Cannot undo this action" : "Undo this action"}>
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<UndoOutlined />}
-                    className="action-button"
-                    disabled={activity.actionType === "delete"}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleUndoAction(activity.id, activity.actionType)
-                    }}
-                  />
-                </Tooltip>
-              </div>
-              <Badge color={getStatusColor(activity.status)} text={activity.statusText} className="activity-status" />
             </div>
-          </div>
-        ))}
-      </div>
-      <div className="view-all-actions">
-        <Button type="link">View All Admin Actions</Button>
-      </div>
+          </List.Item>
+        )}
+      />
     </Card>
   )
 }

@@ -15,10 +15,10 @@ const Dashboard = () => {
         </Col>
       </Row>
       <Row gutter={[24, 24]} className="dashboard-row">
-        <Col span={12}>
+        <Col xs={24} lg={12}>
           <ProjectsSection />
         </Col>
-        <Col span={12}>
+        <Col xs={24} lg={12}>
           <BooksHistory />
         </Col>
       </Row>

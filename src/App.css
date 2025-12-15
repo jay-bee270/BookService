@@ -1,34 +1,530 @@
+/* ============================================
+   BASE APP LAYOUT STYLES
+   ============================================ */
+
+/* Base Layout */
+.app-layout {
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+
+.main-layout {
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+}
+
+.main-layout.collapsed {
+  margin-left: 80px;
+}
+
+.main-content {
+  padding: 24px;
+  min-height: calc(100vh - 48px);
+  background: #f0f2f5;
+}
+
+/* ============================================
+   GLOBAL RESPONSIVE STYLES
+   ============================================ */
+
+/* Base Reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Responsive Container */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Ant Design Overrides for Responsiveness */
 .ant-layout {
   background: #f0f2f5;
 }
 
 .ant-card {
-  transition: all 0.3s ease;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.ant-statistic-content {
-  color: #262626;
+.ant-btn {
+  border-radius: 6px;
 }
 
-.ant-progress-bg {
-  border-radius: 4px;
+.ant-input,
+.ant-input-password,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  border-radius: 6px !important;
 }
 
-.ant-badge-status-text {
-  color: #666;
+/* Modal Responsiveness */
+.ant-modal {
+  max-width: calc(100vw - 32px);
 }
 
-/* Global responsive styles */
-@media (max-width: 1200px) {
-  .ant-layout-content {
-    margin: 16px 8px;
-    padding: 16px;
+.ant-modal-body {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Table Responsiveness */
+.ant-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Form Responsiveness */
+.ant-form-item {
+  margin-bottom: 20px;
+}
+
+/* Toast Container Responsive */
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+/* ============================================
+   DESKTOP STYLES (1200px and above)
+   ============================================ */
+@media (min-width: 1200px) {
+  .container {
+    padding: 0 32px;
   }
 }
 
+/* ============================================
+   LAPTOP/TABLET LANDSCAPE (1024px - 1199px)
+   ============================================ */
+@media (max-width: 1199px) {
+  html {
+    font-size: 15px;
+  }
+  
+  .container {
+    padding: 0 24px;
+  }
+  
+  .ant-card {
+    border-radius: 10px;
+  }
+  
+  .main-layout {
+    margin-left: 250px;
+  }
+  
+  .main-layout.collapsed {
+    margin-left: 80px;
+  }
+  
+  .main-content {
+    padding: 20px;
+  }
+}
+
+/* ============================================
+   TABLET PORTRAIT (768px - 1023px)
+   ============================================ */
+@media (max-width: 1023px) {
+  html {
+    font-size: 15px;
+  }
+  
+  .container {
+    padding: 0 20px;
+  }
+  
+  .main-layout {
+    margin-left: 250px;
+  }
+  
+  .main-layout.collapsed {
+    margin-left: 80px;
+  }
+  
+  .main-content {
+    padding: 20px;
+  }
+  
+  .ant-modal {
+    max-width: calc(100vw - 24px);
+  }
+  
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  /* Stack columns on tablet */
+  .ant-row {
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+  }
+  
+  .ant-col {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* ============================================
+   MOBILE (below 768px)
+   ============================================ */
 @media (max-width: 768px) {
-  .ant-layout-content {
-    margin: 8px 4px;
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
+  
+  /* Mobile Layout */
+  .main-layout {
+    margin-left: 0 !important;
+  }
+  
+  .main-layout.collapsed {
+    margin-left: 0 !important;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+  
+  /* Ensure sidebar is hidden on mobile by default */
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  /* Ant Design Mobile Adjustments */
+  .ant-card {
+    border-radius: 8px;
+  }
+  
+  .ant-card-head {
+    padding: 12px 16px;
+  }
+  
+  .ant-card-body {
+    padding: 16px;
+  }
+  
+  .ant-modal {
+    max-width: calc(100vw - 16px);
+    margin: 8px auto;
+  }
+  
+  .ant-modal-body {
+    padding: 16px;
+    max-height: calc(100vh - 150px);
+  }
+  
+  .ant-modal-header {
+    padding: 12px 16px;
+  }
+  
+  .ant-modal-footer {
+    padding: 12px 16px;
+  }
+  
+  .ant-btn {
+    height: 38px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  
+  .ant-btn-lg {
+    height: 44px;
+    padding: 0 18px;
+    font-size: 15px;
+  }
+  
+  .ant-form-item {
+    margin-bottom: 14px;
+  }
+  
+  .ant-form-item-label {
+    padding-bottom: 4px;
+  }
+  
+  .ant-input,
+  .ant-input-password,
+  .ant-select-selector {
+    height: 38px;
+    font-size: 14px;
+  }
+  
+  .ant-input-lg {
+    height: 44px;
+    font-size: 15px;
+  }
+  
+  /* Stack all columns on mobile */
+  .ant-col-xs-24 {
+    width: 100% !important;
+  }
+  
+  .ant-row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+  
+  .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  /* Table scroll hint */
+  .ant-table-wrapper::after {
+    content: '← Scroll →';
+    display: block;
+    text-align: center;
     padding: 8px;
+    color: #8c8c8c;
+    font-size: 12px;
+  }
+  
+  /* Toast Container */
+  .Toastify__toast-container {
+    width: calc(100vw - 32px);
+    left: 16px;
+    right: 16px;
+    top: 16px;
+  }
+}
+
+/* ============================================
+   SMALL MOBILE (below 576px)
+   ============================================ */
+@media (max-width: 576px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 12px;
+  }
+  
+  .main-content {
+    padding: 12px;
+  }
+  
+  .ant-card-head {
+    padding: 10px 12px;
+  }
+  
+  .ant-card-body {
+    padding: 12px;
+  }
+  
+  .ant-btn {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  
+  .ant-btn-lg {
+    height: 42px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+  
+  .ant-input,
+  .ant-input-password,
+  .ant-select-selector {
+    height: 36px;
+    font-size: 13px;
+  }
+  
+  .ant-modal-body {
+    padding: 12px;
+  }
+  
+  .ant-modal-header {
+    padding: 10px 12px;
+  }
+  
+  .ant-modal-footer {
+    padding: 10px 12px;
+  }
+  
+  h1, .ant-typography h1 {
+    font-size: 24px !important;
+  }
+  
+  h2, .ant-typography h2 {
+    font-size: 20px !important;
+  }
+  
+  h3, .ant-typography h3 {
+    font-size: 18px !important;
+  }
+  
+  h4, .ant-typography h4 {
+    font-size: 16px !important;
+  }
+}
+
+/* ============================================
+   EXTRA SMALL MOBILE (below 480px)
+   ============================================ */
+@media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+  
+  .container {
+    padding: 0 8px;
+  }
+  
+  .main-content {
+    padding: 8px;
+  }
+  
+  .ant-card {
+    border-radius: 6px;
+  }
+  
+  .ant-card-head {
+    padding: 8px 10px;
+  }
+  
+  .ant-card-body {
+    padding: 10px;
+  }
+  
+  .ant-btn {
+    height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  
+  .ant-modal {
+    max-width: calc(100vw - 8px);
+    margin: 4px auto;
+  }
+  
+  h1, .ant-typography h1 {
+    font-size: 20px !important;
+  }
+  
+  h2, .ant-typography h2 {
+    font-size: 18px !important;
+  }
+  
+  h3, .ant-typography h3 {
+    font-size: 16px !important;
+  }
+  
+  h4, .ant-typography h4 {
+    font-size: 14px !important;
+  }
+}
+
+/* ============================================
+   LANDSCAPE MOBILE (height < 500px)
+   ============================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .ant-modal-body {
+    max-height: calc(100vh - 100px);
+  }
+  
+  .ant-layout-header {
+    position: relative;
+    height: auto;
+  }
+}
+
+/* ============================================
+   TOUCH DEVICE IMPROVEMENTS
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  .ant-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .ant-select-selector,
+  .ant-input {
+    min-height: 44px;
+  }
+  
+  .clickable,
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+  .ant-layout-sider,
+  .ant-layout-header,
+  .ant-btn,
+  .mobile-menu-toggle,
+  .sidebar-overlay {
+    display: none !important;
+  }
+  
+  .main-layout {
+    margin-left: 0 !important;
+  }
+  
+  .ant-card {
+    box-shadow: none;
+    border: 1px solid #d9d9d9;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .ant-card {
+    border: 2px solid #000;
+  }
+  
+  .ant-btn-primary {
+    border: 2px solid #000;
   }
 }

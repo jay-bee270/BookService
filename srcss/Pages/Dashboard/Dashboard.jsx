@@ -2,7 +2,7 @@ import { Row, Col } from "antd"
 import StatsCards from "../../components/StatsCards/StatsCards"
 import ChartsSection from "../../components/ChartsSection/ChartsSection"
 import ProjectsSection from "../../components/ProjectsSection/ProjectsSection"
-import OrdersHistory from "../../components/OrdersHistory/OrdersHistory"
+import BooksHistory from "../../components/BooksHistory/BooksHistory"
 import "./Dashboard.css"
 
 const Dashboard = () => {
@@ -19,7 +19,7 @@ const Dashboard = () => {
           <ProjectsSection />
         </Col>
         <Col span={12}>
-          <OrdersHistory />
+          <BooksHistory />
         </Col>
       </Row>
     </div>

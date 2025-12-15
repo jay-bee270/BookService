@@ -1,13 +1,24 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { Card, Row, Col, Spin, Alert, Button, Modal, Form, Input, message, Rate, Divider, Typography } from "antd"
+import {
+  Card,
+  Row,
+  Col,
+  Spin,
+  Alert,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+  Rate,
+  Divider,
+  Typography,
+} from "antd"
 import { EyeOutlined, MessageOutlined, ExclamationCircleFilled, EditOutlined, DeleteOutlined } from "@ant-design/icons"
-import "./BooksPage.css"
 
 const { Title, Text } = Typography
 
-const BooksPage = () => {
+export default function BooksPage() {
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -20,27 +31,41 @@ const BooksPage = () => {
   const [selectedBookForReview, setSelectedBookForReview] = useState(null)
   const [selectedBookReviews, setSelectedBookReviews] = useState([])
   const [reviewsLoading, setReviewsLoading] = useState(false)
-  const [selectedBook, setSelectedBook] = useState(null) // Added this line
+  const [selectedBook, setSelectedBook] = useState(null)
   const [form] = Form.useForm()
   const [reviewForm] = Form.useForm()
+
+  const REVIEWS_API = "http://9.169.178.97:8080/reviews"
 
   const fetchBooks = async () => {
     setLoading(true)
     try {
-      const res = await fetch("https://book-services-group-a.onrender.com/api/v1/products")
+      const res = await fetch("http://20.121.232.133:8080/api/v1/products")
+      if (!res.ok) {
+        throw new Error(`Failed to fetch books: ${res.status}`)
+      }
       const data = await res.json()
 
       const booksWithReviewCounts = await Promise.all(
         data.map(async (book) => {
           try {
-            const reviewRes = await fetch(`https://book-services-group-a-1.onrender.com/reviews/book/${book.productId}`)
-            const reviews = await reviewRes.json()
+            const reviewRes = await fetch(`${REVIEWS_API}/book/${book.productId}`)
+            if (reviewRes.ok) {
+              const reviews = await reviewRes.json()
+              const reviewsArray = Array.isArray(reviews) ? reviews : []
+              return {
+                ...book,
+                reviewCount: reviewsArray.length,
+                reviews: reviewsArray,
+              }
+            }
             return {
               ...book,
-              reviewCount: reviews.length || 0,
-              reviews: reviews || [],
+              reviewCount: 0,
+              reviews: [],
             }
           } catch (err) {
+            console.error(`Error fetching reviews for book ${book.productId}:`, err)
             return {
               ...book,
               reviewCount: 0,
@@ -54,6 +79,7 @@ const BooksPage = () => {
       setError(null)
     } catch (err) {
       setError(err.message || "Failed to fetch books")
+      message.error("Failed to load books")
     } finally {
       setLoading(false)
     }
@@ -65,8 +91,13 @@ const BooksPage = () => {
 
   const showModal = (book = null) => {
     setEditingBook(book)
+    setSelectedBook(null)
     if (book) {
-      form.setFieldsValue(book)
+      form.setFieldsValue({
+        productTitle: book.productTitle,
+        productAuthor: book.productAuthor,
+        productDescription: book.productDescription,
+      })
     } else {
       form.resetFields()
     }
@@ -85,10 +116,10 @@ const BooksPage = () => {
     setIsViewReviewsModalVisible(true)
 
     try {
-      const response = await fetch(`https://book-services-group-a-1.onrender.com/reviews/book/${book.productId}`)
+      const response = await fetch(`${REVIEWS_API}/book/${book.productId}`)
       if (response.ok) {
         const reviews = await response.json()
-        setSelectedBookReviews(reviews)
+        setSelectedBookReviews(Array.isArray(reviews) ? reviews : [])
       } else {
         setSelectedBookReviews([])
       }
@@ -113,6 +144,7 @@ const BooksPage = () => {
   const handleCancel = () => {
     setIsModalVisible(false)
     setEditingBook(null)
+    setSelectedBook(null)
     form.resetFields()
   }
 
@@ -135,15 +167,21 @@ const BooksPage = () => {
 
   const handleDelete = async () => {
     if (!bookToDelete) return
-    
+
     try {
-      await fetch(`https://book-services-group-a.onrender.com/api/v1/products/${bookToDelete.productId}`, {
+      const response = await fetch(`http://20.121.232.133:8080/api/v1/products/${bookToDelete.productId}`, {
         method: "DELETE",
       })
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete: ${response.status}`)
+      }
+
       message.success("Book deleted successfully")
       fetchBooks()
     } catch (err) {
       message.error("Error deleting book")
+      console.error("Delete error:", err)
     } finally {
       setIsDeleteModalVisible(false)
       setBookToDelete(null)
@@ -152,30 +190,57 @@ const BooksPage = () => {
 
   const handleFinish = async (values) => {
     try {
-      const payload = {
-        ...values,
-        productId: editingBook?.productId ?? values.productId,
-      }
+      let payload
+      let url
+      let method
 
       if (editingBook) {
-        await fetch(`https://book-services-group-a.onrender.com/api/v1/products/${editingBook.productId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-        message.success("Book updated successfully")
+        url = `http://20.121.232.133:8080/api/v1/products/${editingBook.productId}`
+        method = "PUT"
+        payload = {
+          productTitle: values.productTitle,
+          productAuthor: values.productAuthor,
+          productDescription: values.productDescription,
+        }
       } else {
-        await fetch("https://book-services-group-a.onrender.com/api/v1/products", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-        message.success("Book added successfully")
+        url = "http://20.121.232.133:8080/api/v1/products"
+        method = "POST"
+        payload = {
+          productTitle: values.productTitle,
+          productAuthor: values.productAuthor,
+          productDescription: values.productDescription,
+        }
       }
-      fetchBooks()
-      setIsModalVisible(false)
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (response.ok) {
+        message.success(editingBook ? "Book updated successfully" : "Book added successfully")
+        fetchBooks()
+        setIsModalVisible(false)
+        setEditingBook(null)
+        setSelectedBook(null)
+        form.resetFields()
+      } else {
+        let errorMessage = `Error ${response.status}`
+        try {
+          const errorText = await response.text()
+          errorMessage += `: ${errorText}`
+        } catch (e) {
+          // Ignore
+        }
+        throw new Error(errorMessage)
+      }
     } catch (err) {
-      message.error("Error saving book")
+      console.error("Save book error:", err)
+      message.error(`Error: ${err.message}`)
     }
   }
 
@@ -188,7 +253,7 @@ const BooksPage = () => {
         rating: values.rating || 5,
       }
 
-      const response = await fetch("https://book-services-group-a-1.onrender.com/reviews", {
+      const response = await fetch(REVIEWS_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -197,6 +262,7 @@ const BooksPage = () => {
       if (response.ok) {
         message.success("Review added successfully!")
         setIsReviewModalVisible(false)
+        reviewForm.resetFields()
         fetchBooks()
       } else {
         throw new Error("Failed to submit review")
@@ -207,115 +273,140 @@ const BooksPage = () => {
   }
 
   return (
-    <div className="books-page">
-      <div className="header-section">
-        <Title level={3} className="page-title">Book Collection</Title>
-        <Button 
-          type="primary" 
-          icon={<EditOutlined />}
-          className="add-book-btn"
-          onClick={() => showModal()}
-          size="large"
-        >
-          Add New Book
+    <div style={{ padding: 24, background: "#f0f2f5", minHeight: "100vh" }}>
+      <div style={{ marginBottom: 24, marginTop: 40, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 19 }}>
+        <Title level={3} style={{ margin: -17.5 }}>
+          Book Collection
+        </Title>
+        <Button type="primary" icon={<EditOutlined />} onClick={() => showModal()} size="large">
+          Can't Add Book At The Moment
         </Button>
       </div>
 
       {loading ? (
-        <div className="loading-container">
+        <div style={{ textAlign: "center", padding: 50 }}>
           <Spin size="large" tip="Loading books..." />
         </div>
       ) : error ? (
-        <Alert 
-          type="error" 
-          message="Error" 
-          description={error} 
-          showIcon 
-          className="error-alert"
-        />
+        <Alert  message="No Books Available At The Moment" description="Check Back Later"  />
       ) : (
-        <Row gutter={[24, 24]} className="books-grid">
+        <Row gutter={[24, 24]}>
           {books.map((book) => (
             <Col xs={24} sm={12} md={8} lg={6} key={book.productId}>
               <Card
-                className="book-card"
+                hoverable
+                style={{ height: "100%", display: "flex", flexDirection: "column" }}
+                bodyStyle={{ flex: 1, display: "flex", flexDirection: "column", padding: "16px" }}
                 cover={
-                  <div className="book-cover-placeholder">
-                    <Text strong className="book-id">Id: {book.productId}</Text>
+                  <div
+                    style={{
+                      height: 180,
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 20,
+                      color: "white",
+                      fontSize: 18,
+                      fontWeight: 600,
+                      textAlign: "center",
+                      overflow: "hidden",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => showBookDetails(book)}
+                  >
+                    <div style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 4,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      lineHeight: 1.4
+                    }}>
+                      {book.productTitle}
+                    </div>
                   </div>
                 }
                 actions={[
-                  <Button 
-                    type="primary" 
-                    icon={<MessageOutlined />} 
+                  <Button
+                    type="primary"
+                    icon={<MessageOutlined />}
                     onClick={(e) => {
                       e.stopPropagation()
                       showReviewModal(book)
                     }}
-                    className="card-action-btn"
+                    size="small"
+                    key="addReview"
                   >
                     Add Review
                   </Button>,
-                  <Button 
-                    icon={<EyeOutlined />} 
+                  <Button
+                    icon={<EyeOutlined />}
                     onClick={(e) => {
                       e.stopPropagation()
                       showViewReviewsModal(book)
                     }}
-                    className="card-action-btn"
+                    size="small"
+                    key="viewReviews"
                   >
                     Reviews ({book.reviewCount})
-                  </Button>
+                  </Button>,
                 ]}
               >
-                <Card
-                  hoverable
-                  onClick={() => showBookDetails(book)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <Card.Meta
-                    title={
-                      <>
-                        <Text strong>Title: </Text>
-                        <Text ellipsis={{ tooltip: book.productTitle }}>
-                          {book.productTitle}
-                        </Text>
-                      </>
-                    }
-                    description={
-                      <>
-                        <Text type="secondary" strong>Author: </Text>
-                        <Text type="secondary" ellipsis={{ tooltip: book.productAuthor || "Unknown Author" }}>
-                          {book.productAuthor || "Unknown Author"}
-                        </Text>
-                        <Divider className="book-divider" />
-                        <Text strong>About book: </Text>
-                        <Text className="book-description" ellipsis={{ rows: 3, expandable: true, symbol: 'more' }}>
-                          {book.productDescription || "No description available"}
-                        </Text>
-                      </>
-                    }
-                  />
-                </Card>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                  <div style={{ marginBottom: 8 }}>
+                    <Text type="secondary" strong style={{ fontSize: 12 }}>
+                      Author:{" "}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {book.productAuthor || "Unknown Author"}
+                    </Text>
+                  </div>
+                  
+                  <Divider style={{ margin: "8px 0" }} />
+                  
+                  <div style={{ flex: 1, marginBottom: 12 }}>
+                    <Text strong style={{ fontSize: 12 }}>About: </Text>
+                    <div style={{ 
+                      height: 60, 
+                      overflow: "hidden", 
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      fontSize: 12,
+                      color: "#595959",
+                      lineHeight: 1.5
+                    }}>
+                      {book.productDescription || "No description available"}
+                    </div>
+                  </div>
 
-                <div className="card-actions">
-                  <Button 
-                    icon={<EditOutlined />} 
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      showModal(book)
-                    }}
-                    className="edit-btn"
-                  />
-                  <Button 
-                    icon={<DeleteOutlined />} 
-                    danger 
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      showDeleteConfirm(book)
-                    }}
-                    className="delete-btn"
-                  />
+                  <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        showModal(book)
+                      }}
+                      style={{ flex: 1 }}
+                      size="small"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      icon={<DeleteOutlined />}
+                      danger
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        showDeleteConfirm(book)
+                      }}
+                      style={{ flex: 1 }}
+                      size="small"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </Col>
@@ -325,26 +416,14 @@ const BooksPage = () => {
 
       {/* Book Add/Edit Modal */}
       <Modal
-        title={editingBook ? "Edit Book" : "Add Book"}
+        title={editingBook ? "Edit Book" : "Add New Book"}
         open={isModalVisible && (editingBook !== null || selectedBook === null)}
         onCancel={handleCancel}
         onOk={() => form.submit()}
         okText={editingBook ? "Update" : "Add"}
-        cancelText="Cancel"
-        width="90%"
-        style={{ maxWidth: 600 }}
-        className="book-modal"
+        width={600}
       >
         <Form form={form} layout="vertical" onFinish={handleFinish}>
-          {!editingBook && (
-            <Form.Item
-              name="productId"
-              label="Book ID"
-              rules={[{ required: true, message: "Please input product ID" }]}
-            >
-              <Input placeholder="Enter book ID" />
-            </Form.Item>
-          )}
           <Form.Item name="productTitle" label="Title" rules={[{ required: true, message: "Please input title" }]}>
             <Input placeholder="Enter book title" />
           </Form.Item>
@@ -370,8 +449,8 @@ const BooksPage = () => {
           setSelectedBook(null)
         }}
         footer={[
-          <Button 
-            key="close" 
+          <Button
+            key="close"
             onClick={() => {
               setIsModalVisible(false)
               setSelectedBook(null)
@@ -380,18 +459,23 @@ const BooksPage = () => {
             Close
           </Button>,
         ]}
-        width="90%"
-        style={{ maxWidth: 600 }}
+        width={600}
       >
         {selectedBook && (
           <>
             <Title level={4}>{selectedBook.productTitle}</Title>
-            <p><strong>Author:</strong> {selectedBook.productAuthor || "Unknown Author"}</p>
+            <p>
+              <strong>Author:</strong> {selectedBook.productAuthor || "Unknown Author"}
+            </p>
             <Divider />
-            <p><strong>About book:</strong></p>
+            <p>
+              <strong>About:</strong>
+            </p>
             <p>{selectedBook.productDescription || "No description available"}</p>
             <Divider />
-            <p><strong>Reviews:</strong> {selectedBook.reviewCount}</p>
+            <p>
+              <strong>Reviews:</strong> {selectedBook.reviewCount}
+            </p>
           </>
         )}
       </Modal>
@@ -403,10 +487,7 @@ const BooksPage = () => {
         onCancel={handleReviewCancel}
         onOk={() => reviewForm.submit()}
         okText="Submit Review"
-        cancelText="Cancel"
-        width="90%"
-        style={{ maxWidth: 600 }}
-        className="review-modal"
+        width={600}
       >
         <Form form={reviewForm} layout="vertical" onFinish={handleReviewSubmit}>
           <Form.Item name="reviewer" label="Your Name" rules={[{ required: true, message: "Please enter your name" }]}>
@@ -415,11 +496,7 @@ const BooksPage = () => {
           <Form.Item name="rating" label="Rating" initialValue={5}>
             <Rate />
           </Form.Item>
-          <Form.Item
-            name="comment"
-            label="Your Review"
-            rules={[{ required: true, message: "Please write your review" }]}
-          >
+          <Form.Item name="comment" label="Your Review" rules={[{ required: true, message: "Please write your review" }]}>
             <Input.TextArea rows={4} placeholder="Share your thoughts about this book..." />
           </Form.Item>
         </Form>
@@ -445,16 +522,14 @@ const BooksPage = () => {
             Add Review
           </Button>,
         ]}
-        width="90%"
-        style={{ maxWidth: 700 }}
-        className="reviews-modal"
+        width={700}
       >
         {reviewsLoading ? (
-          <div className="reviews-loading">
+          <div style={{ textAlign: "center", padding: 30 }}>
             <Spin tip="Loading reviews..." />
           </div>
         ) : selectedBookReviews.length === 0 ? (
-          <div className="no-reviews">
+          <div style={{ textAlign: "center", padding: 30 }}>
             <p>No reviews yet for this book.</p>
             <Button
               type="primary"
@@ -467,24 +542,16 @@ const BooksPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="reviews-list">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {selectedBookReviews.map((review) => (
-              <Card key={review.id} className="review-card" size="small">
-                <div className="review-content">
-                  <div className="review-header">
-                    <strong className="reviewer-name">{review.reviewer}</strong>
-                    {review.rating && (
-                      <Rate 
-                        disabled 
-                        defaultValue={review.rating} 
-                        className="review-rating" 
-                      />
-                    )}
+              <Card key={review.id} size="small" style={{ background: "#fafafa" }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <strong>{review.reviewer}</strong>
+                    {review.rating && <Rate disabled defaultValue={review.rating} />}
                   </div>
-                  <p className="review-comment">{review.comment}</p>
-                  <small className="review-date">
-                    {new Date(review.createdAt).toLocaleDateString()}
-                  </small>
+                  <p style={{ margin: "8px 0" }}>{review.comment}</p>
+                  <small style={{ color: "#8c8c8c" }}>{new Date(review.createdAt).toLocaleDateString()}</small>
                 </div>
               </Card>
             ))}
@@ -495,8 +562,8 @@ const BooksPage = () => {
       {/* Delete Confirmation Modal */}
       <Modal
         title={
-          <span className="delete-modal-title">
-            <ExclamationCircleFilled className="delete-icon" />
+          <span>
+            <ExclamationCircleFilled style={{ color: "#ff4d4f", marginRight: 8 }} />
             Confirm Delete
           </span>
         }
@@ -504,19 +571,14 @@ const BooksPage = () => {
         onOk={handleDelete}
         onCancel={handleDeleteCancel}
         okText="Delete"
-        cancelText="Cancel"
         okButtonProps={{ danger: true }}
-        className="delete-modal"
-        width="90%"
-        style={{ maxWidth: 500 }}
+        width={500}
       >
-        <p className="delete-confirmation-text">
+        <p>
           Are you sure you want to delete the book <strong>"{bookToDelete?.productTitle}"</strong>?
         </p>
-        <p className="delete-warning-text">This action cannot be undone.</p>
+        <p style={{ color: "#ff4d4f" }}>This action cannot be undone.</p>
       </Modal>
     </div>
   )
 }
-
-export default BooksPage

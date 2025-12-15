@@ -1,17 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Layout, Button, Typography, Card, Space, Spin, Alert, Input, Select, Tag, Grid } from "antd"
-import { 
-  BookOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
+import {
+  BookOutlined,
+  EditOutlined,
+  DeleteOutlined,
   SearchOutlined,
   UserOutlined,
   MessageOutlined,
   CalendarOutlined,
   SyncOutlined,
-  MenuOutlined
+  MenuOutlined,
 } from "@ant-design/icons"
 import GetReviews from "./GetReviews"
 import PostReview from "./PostReviews"
@@ -40,35 +40,40 @@ const ReviewsPage = () => {
   const fetchBooksAndReviews = async () => {
     setLoading(true)
     try {
-      const booksRes = await fetch("https://book-services-group-a.onrender.com/api/v1/products")
-      const booksData = await booksRes.json()
+      // UPDATED: Fetch all reviews from the new endpoint
+      const reviewsRes = await fetch("http://9.169.178.97:8080/reviews/book/1")
 
-      const booksWithReviews = await Promise.all(
-        booksData.map(async (book) => {
-          try {
-            const reviewRes = await fetch(`https://book-services-group-a-1.onrender.com/reviews/book/${book.productId}`)
-            const reviews = await reviewRes.json()
-            return {
-              ...book,
-              reviews: reviews || [],
-            }
-          } catch (err) {
-            return {
-              ...book,
-              reviews: [],
-            }
-          }
-        }),
-      )
+      if (!reviewsRes.ok) {
+        throw new Error(`HTTP error! status: ${reviewsRes.status}`)
+      }
 
-      const allReviewsFlat = booksWithReviews.flatMap((book) =>
-        book.reviews.map((review) => ({
-          ...review,
-          bookTitle: book.productTitle,
-          bookAuthor: book.productAuthor,
-          bookId: book.productId,
-        })),
-      )
+      const reviewsData = await reviewsRes.json()
+
+      // Extract unique books from reviews
+      const booksMap = new Map()
+
+      reviewsData.forEach((review) => {
+        const bookId = review.bookId
+        if (!booksMap.has(bookId)) {
+          booksMap.set(bookId, {
+            productId: bookId,
+            productTitle: review.bookTitle || `Book ${bookId}`,
+            productAuthor: review.bookAuthor || "Unknown Author",
+            reviews: [],
+          })
+        }
+        booksMap.get(bookId).reviews.push(review)
+      })
+
+      const booksWithReviews = Array.from(booksMap.values())
+
+      // Flatten all reviews with book information
+      const allReviewsFlat = reviewsData.map((review) => ({
+        ...review,
+        bookTitle: review.bookTitle || `Book ${review.bookId}`,
+        bookAuthor: review.bookAuthor || "Unknown Author",
+        bookId: review.bookId,
+      }))
 
       setBooks(booksWithReviews)
       setAllReviews(allReviewsFlat)
@@ -76,6 +81,7 @@ const ReviewsPage = () => {
       setError(null)
     } catch (err) {
       setError(err.message || "Failed to fetch data")
+      console.error("Fetch error:", err)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -97,10 +103,10 @@ const ReviewsPage = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (review) =>
-          review.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          review.bookAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          review.reviewer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          review.comment.toLowerCase().includes(searchTerm.toLowerCase()),
+          (review.bookTitle?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+          (review.bookAuthor?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+          (review.reviewer?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+          (review.comment?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
       )
     }
 
@@ -115,16 +121,26 @@ const ReviewsPage = () => {
     setMobileMenuOpen(!mobileMenuOpen)
   }
 
+  const bookOptions = useMemo(
+    () =>
+      books.map((book) => (
+        <Option key={book.productId} value={book.productId.toString()}>
+          {book.productTitle}
+        </Option>
+      )),
+    [books],
+  )
+
   const renderBrowseByBook = () => (
     <div className="page-style">
       <Title level={2} className="title-style">
-        <br/>
+        <br />
         Find Reviews About Your favourite Books
       </Title>
 
       <Card className="card-style">
         <div className="search-container">
-          <Space className={`search-space ${screens.xs ? 'vertical-space' : ''}`}>
+          <Space className={`search-space ${screens.xs ? "vertical-space" : ""}`}>
             <Search
               placeholder="Search books, authors, or reviewers..."
               allowClear
@@ -139,13 +155,10 @@ const ReviewsPage = () => {
               size="large"
               value={selectedBook}
               onChange={setSelectedBook}
+              getPopupContainer={(trigger) => trigger.parentElement}
             >
               <Option value="all">All Books</Option>
-              {books.map((book) => (
-                <Option key={book.productId} value={book.productId.toString()}>
-                  {book.productTitle}
-                </Option>
-              ))}
+              {bookOptions}
             </Select>
             <Button
               type="primary"
@@ -154,7 +167,7 @@ const ReviewsPage = () => {
               size="large"
               className="refresh-button"
             >
-              {screens.md ? (refreshing ? 'Refreshing' : 'Refresh') : ''}
+              {screens.md ? (refreshing ? "Refreshing" : "Refresh") : ""}
             </Button>
           </Space>
         </div>
@@ -164,18 +177,14 @@ const ReviewsPage = () => {
             <Spin size="large" tip="Loading literary treasures..." />
           </div>
         ) : error ? (
-          <Alert 
-            type="error" 
-            message="Bibliographic Mishap" 
-            description={error}
-            className="error-alert"
-          />
+          <Alert message="No Reviews at The Moment" description="Check Back Later"  className="error-alert" />
         ) : (
           <div>
             {filteredReviews.length === 0 ? (
               <div className="empty-state">
                 <Paragraph type="secondary">
-                  No reviews found in this tale,<br/>
+                  No reviews found in this tale,
+                  <br />
                   Perhaps try another trail.
                 </Paragraph>
               </div>
@@ -183,20 +192,19 @@ const ReviewsPage = () => {
               <div>
                 {selectedBook !== "all" && (
                   <Title level={4} className="book-title">
-                    Reviews for "{books.find(b => b.productId.toString() === selectedBook)?.productTitle}"
+                    Reviews for "{books.find((b) => b.productId.toString() === selectedBook)?.productTitle}"
                   </Title>
                 )}
-                
+
                 <div className="reviews-container">
                   {filteredReviews.map((review) => (
-                    <Card 
-                      key={review.id} 
-                      className="book-card"
-                    >
+                    <Card key={review.id} className="book-card">
                       <div className="review-content-wrapper">
                         <div className="review-header">
                           <UserOutlined className="review-icon" />
-                          <Text strong className="reviewer-name">{review.reviewer}</Text>
+                          <Text strong className="reviewer-name">
+                            {review.reviewer}
+                          </Text>
                           <Tag color="blue" className="book-tag">
                             <BookOutlined className="tag-icon" />
                             {review.bookTitle}
@@ -222,7 +230,7 @@ const ReviewsPage = () => {
 
                 <div className="review-count">
                   <Text type="secondary">
-                    Showing {filteredReviews.length} review{filteredReviews.length !== 1 ? 's' : ''}
+                    Showing {filteredReviews.length} review{filteredReviews.length !== 1 ? "s" : ""}
                   </Text>
                 </div>
               </div>
@@ -239,7 +247,8 @@ const ReviewsPage = () => {
         return (
           <div className="page-style">
             <Title level={2} className="title-style">
-              Find Reviews Far and Wide<br/>
+              Find Reviews Far and Wide
+              <br />
               Search Them With Pride
             </Title>
             <GetReviews />
@@ -249,7 +258,8 @@ const ReviewsPage = () => {
         return (
           <div className="page-style">
             <Title level={2} className="title-style">
-              Share Your Thoughts So True<br/>
+              Share Your Thoughts So True
+              <br />
               Let Others Read Your View
             </Title>
             <PostReview />
@@ -259,7 +269,8 @@ const ReviewsPage = () => {
         return (
           <div className="page-style">
             <Title level={2} className="title-style">
-              Remove What You Wrote<br/>
+              Remove What You Wrote
+              <br />
               Delete That Old Note
             </Title>
             <DeleteReview />
@@ -285,7 +296,7 @@ const ReviewsPage = () => {
                 type={currentPage === "browse-by-book" ? "primary" : "text"}
                 icon={<BookOutlined />}
                 onClick={() => setCurrentPage("browse-by-book")}
-                className={`nav-button ${currentPage === "browse-by-book" ? 'active' : ''}`}
+                className={`nav-button ${currentPage === "browse-by-book" ? "active" : ""}`}
               >
                 Browse
               </Button>
@@ -293,7 +304,7 @@ const ReviewsPage = () => {
                 type={currentPage === "get-reviews" ? "primary" : "text"}
                 icon={<SearchOutlined />}
                 onClick={() => setCurrentPage("get-reviews")}
-                className={`nav-button ${currentPage === "get-reviews" ? 'active' : ''}`}
+                className={`nav-button ${currentPage === "get-reviews" ? "active" : ""}`}
               >
                 Find
               </Button>
@@ -301,7 +312,7 @@ const ReviewsPage = () => {
                 type={currentPage === "post-review" ? "primary" : "text"}
                 icon={<EditOutlined />}
                 onClick={() => setCurrentPage("post-review")}
-                className={`nav-button ${currentPage === "post-review" ? 'active' : ''}`}
+                className={`nav-button ${currentPage === "post-review" ? "active" : ""}`}
               >
                 Write
               </Button>
@@ -309,17 +320,13 @@ const ReviewsPage = () => {
                 type={currentPage === "delete-review" ? "primary" : "text"}
                 icon={<DeleteOutlined />}
                 onClick={() => setCurrentPage("delete-review")}
-                className={`nav-button ${currentPage === "delete-review" ? 'active' : ''}`}
+                className={`nav-button ${currentPage === "delete-review" ? "active" : ""}`}
               >
                 Delete
               </Button>
             </Space>
           ) : (
-            <Button
-              icon={<MenuOutlined />}
-              onClick={toggleMobileMenu}
-              className="mobile-menu-button"
-            />
+            <Button icon={<MenuOutlined />} onClick={toggleMobileMenu} className="mobile-menu-button" />
           )}
         </div>
 
@@ -333,7 +340,7 @@ const ReviewsPage = () => {
                 setCurrentPage("browse-by-book")
                 setMobileMenuOpen(false)
               }}
-              className={`mobile-nav-button ${currentPage === "browse-by-book" ? 'active' : ''}`}
+              className={`mobile-nav-button ${currentPage === "browse-by-book" ? "active" : ""}`}
             >
               Browse
             </Button>
@@ -345,7 +352,7 @@ const ReviewsPage = () => {
                 setCurrentPage("get-reviews")
                 setMobileMenuOpen(false)
               }}
-              className={`mobile-nav-button ${currentPage === "get-reviews" ? 'active' : ''}`}
+              className={`mobile-nav-button ${currentPage === "get-reviews" ? "active" : ""}`}
             >
               Find
             </Button>
@@ -357,7 +364,7 @@ const ReviewsPage = () => {
                 setCurrentPage("post-review")
                 setMobileMenuOpen(false)
               }}
-              className={`mobile-nav-button ${currentPage === "post-review" ? 'active' : ''}`}
+              className={`mobile-nav-button ${currentPage === "post-review" ? "active" : ""}`}
             >
               Write
             </Button>
@@ -369,7 +376,7 @@ const ReviewsPage = () => {
                 setCurrentPage("delete-review")
                 setMobileMenuOpen(false)
               }}
-              className={`mobile-nav-button ${currentPage === "delete-review" ? 'active' : ''}`}
+              className={`mobile-nav-button ${currentPage === "delete-review" ? "active" : ""}`}
             >
               Delete
             </Button>
@@ -377,9 +384,7 @@ const ReviewsPage = () => {
         )}
       </Header>
 
-      <Content className="content-area">
-        {renderContent()}
-      </Content>
+      <Content className="content-area">{renderContent()}</Content>
     </Layout>
   )
 }

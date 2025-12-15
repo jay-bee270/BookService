@@ -1,69 +1,39 @@
 .projects-card {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: none;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: 100%;
 }
 
-.projects-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+.projects-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
 }
 
-.projects-extra {
-  color: #666;
-  font-size: 12px;
-}
-
-.projects-stats {
-  margin-bottom: 24px;
-  padding: 16px;
-  background: #fafafa;
-  border-radius: 8px;
-}
-
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  display: block;
-  font-size: 20px;
-  font-weight: bold;
+.projects-card .ant-card-head-title {
+  font-size: 16px;
+  font-weight: 600;
   color: #262626;
-  margin-bottom: 4px;
 }
 
-.stat-label {
-  display: block;
-  color: #666;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.projects-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.projects-card .ant-card-body {
+  padding: 0;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .project-item {
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  padding: 16px;
-  transition: all 0.3s ease;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0 !important;
 }
 
-.project-item:hover {
-  border-color: #d9d9d9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.project-item:last-child {
+  border-bottom: none;
+}
+
+.project-content {
+  width: 100%;
 }
 
 .project-header {
@@ -71,6 +41,7 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 12px;
+  gap: 16px;
 }
 
 .project-title-section {
@@ -81,127 +52,82 @@
 }
 
 .project-icon {
-  width: 32px;
-  height: 32px;
-  background: #f0f2f5;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: #1890ff;
-  font-size: 14px;
+  font-size: 16px;
+  margin-top: 2px;
   flex-shrink: 0;
 }
 
-.project-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.project-name {
-  font-weight: 500;
-  color: #262626;
+.project-title {
+  margin: 0 0 4px 0;
   font-size: 14px;
-  display: block;
-  margin-bottom: 6px;
+  font-weight: 600;
+  color: #262626;
+  line-height: 1.4;
 }
 
-.project-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.project-description {
+  margin: 0;
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 1.4;
 }
 
-.project-deadline {
-  color: #666;
-  font-size: 11px;
-}
-
-.project-actions {
+.project-tags {
   display: flex;
   gap: 4px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  flex-shrink: 0;
 }
 
-.project-item:hover .project-actions {
-  opacity: 1;
-}
-
-.project-progress-section {
+.project-progress {
   margin-bottom: 12px;
 }
 
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.progress-text {
-  color: #666;
+.project-meta {
   font-size: 12px;
+  color: #8c8c8c;
 }
 
-.progress-percentage {
-  color: #262626;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.progress-bar {
-  margin-bottom: 0;
-}
-
-.project-footer {
-  display: flex;
-  justify-content: space-between;
+.project-assignee,
+.project-due-date {
+  display: inline-flex;
   align-items: center;
-}
-
-.participants-avatars {
-  display: flex;
   gap: 4px;
 }
 
-.participant-avatar {
-  background-color: #1890ff;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.participant-avatar:hover {
-  transform: scale(1.1);
-}
-
-.project-rating {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.rating-text {
-  color: #666;
-  font-size: 11px;
-}
-
 @media (max-width: 768px) {
-  .stats-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .projects-card .ant-card-body {
+    max-height: 400px;
   }
 
-  .stat-value {
-    font-size: 16px;
+  .project-item {
+    padding: 16px 20px !important;
   }
 
   .project-header {
     flex-direction: column;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 8px;
   }
 
-  .project-actions {
-    opacity: 1;
+  .project-tags {
+    align-self: flex-end;
+  }
+
+  .project-meta .ant-space {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .project-title-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .project-icon {
+    align-self: flex-start;
   }
 }

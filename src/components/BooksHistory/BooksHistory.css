@@ -1,61 +1,68 @@
-.books-history-card {
+.history-card {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: none;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: 100%;
 }
 
-.books-history-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.books-history-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.book-activity-item {
-  padding: 16px 0;
+.history-card .ant-card-head {
   border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  padding: 16px 24px;
 }
 
-.book-activity-item:last-child {
+.history-card .ant-card-head-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.history-card .ant-card-body {
+  padding: 0;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.history-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.activity-item {
+  padding: 16px 24px !important;
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0 !important;
+}
+
+.activity-item:last-child {
   border-bottom: none;
 }
 
-.book-activity-item:hover {
+.activity-item:hover {
   background-color: #fafafa;
-  border-radius: 8px;
-  margin: 0 -8px;
-  padding: 16px 8px;
 }
 
 .activity-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  width: 100%;
 }
 
 .activity-header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  flex: 1;
 }
 
 .activity-icon {
-  font-size: 16px;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
-  border-radius: 8px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
   flex-shrink: 0;
+  font-size: 14px;
 }
 
 .activity-info {
@@ -63,89 +70,78 @@
   min-width: 0;
 }
 
-.activity-title {
-  font-weight: 500;
-  margin-bottom: 4px;
-  color: #262626;
-  font-size: 14px;
-}
-
-.activity-details {
-  color: #666;
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.activity-meta {
+.activity-main {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
-.activity-admin {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #666;
-}
-
-.activity-id {
-  color: #1890ff;
-  font-size: 11px;
+.activity-title {
   font-weight: 500;
+  color: #262626;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
-.activity-category {
-  font-size: 11px;
+.activity-meta {
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 1.4;
 }
 
-.activity-timestamp {
-  color: #999;
-  font-size: 11px;
+.activity-author {
+  font-style: italic;
 }
 
-.activity-actions {
-  display: flex;
-  gap: 4px;
-  margin-right: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.book-activity-item:hover .activity-actions {
-  opacity: 1;
-}
-
-.action-button {
-  color: #666;
-  transition: color 0.3s ease;
-}
-
-.action-button:hover {
-  color: #1890ff;
-}
-
-.action-button[disabled] {
+.activity-separator {
   color: #d9d9d9;
-  cursor: not-allowed;
 }
 
-.activity-status {
-  font-size: 12px;
-  align-self: flex-start;
+.activity-user,
+.activity-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.activity-status .ant-badge-status-text {
-  color: #666;
-  font-weight: 500;
+@media (max-width: 768px) {
+  .history-card .ant-card-body {
+    max-height: 400px;
+  }
+
+  .activity-item {
+    padding: 12px 20px !important;
+  }
+
+  .activity-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .activity-meta .ant-space {
+    flex-wrap: wrap;
+  }
 }
 
-.view-all-actions {
-  text-align: center;
-  margin-top: 16px;
-  border-top: 1px solid #f0f0f0;
-  padding-top: 16px;
+@media (max-width: 576px) {
+  .activity-header {
+    gap: 8px;
+  }
+
+  .activity-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .activity-title {
+    font-size: 13px;
+  }
+
+  .activity-meta {
+    font-size: 11px;
+  }
 }

@@ -1,135 +1,164 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, Input, Button, Spin, Alert, Typography, Space, Divider, Tag, message } from "antd"
-import { SearchOutlined, CalendarOutlined, UserOutlined, MessageOutlined, CopyOutlined } from "@ant-design/icons"
+import { useState } from "react"
+import { Card, Form, Input, Button, message, List, Typography, Space, Spin } from "antd"
+import { SearchOutlined, BookOutlined, UserOutlined, CalendarOutlined } from "@ant-design/icons"
 
 const { Title, Text, Paragraph } = Typography
 
 const GetReviews = () => {
-  const [bookId, setBookId] = useState(2)
+  const [form] = Form.useForm()
   const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [inputId, setInputId] = useState("")
+  const [searched, setSearched] = useState(false)
 
-  const fetchReviews = async (id) => {
+  const handleSearch = async (values) => {
     setLoading(true)
-    setError(null)
+    setSearched(true)
     try {
-      const response = await fetch(`https://book-services-group-a-1.onrender.com/reviews/book/${id}`)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      const { reviewId, bookId } = values
+
+      if (reviewId) {
+        // UPDATED: Changed to new API endpoint
+        const response = await fetch(`http://9.169.178.97:8080/reviews/${reviewId}`)
+        if (response.ok) {
+          const review = await response.json()
+          setReviews([review])
+        } else {
+          setReviews([])
+          message.warning("No review found with that ID")
+        }
+      } else if (bookId) {
+        // UPDATED: Changed to new API endpoint
+        const response = await fetch(`http://9.169.178.97:8080/reviews/book/${bookId}`)
+        if (response.ok) {
+          const bookReviews = await response.json()
+          setReviews(Array.isArray(bookReviews) ? bookReviews : [])
+          if (bookReviews.length === 0) {
+            message.warning("No reviews found for that book")
+          }
+        } else {
+          setReviews([])
+          message.warning("No reviews found for that book")
+        }
       }
-      const data = await response.json()
-      setReviews(data)
-    } catch (err) {
-      setError(err.message)
+    } catch (error) {
+      message.error("Error searching reviews: " + error.message)
       setReviews([])
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const id = Number.parseInt(inputId)
-    if (!isNaN(id)) {
-      setBookId(id)
-      fetchReviews(id)
-    }
-  }
-
-  useEffect(() => {
-    fetchReviews(bookId)
-  }, [])
-
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "24px" }}>
-      <Title level={2}>Book Reviews</Title>
+    <div>
+      <Card style={{ marginBottom: 24 }}>
+        <div style={{ marginBottom: 24, textAlign: "center" }}>
+          <SearchOutlined style={{ fontSize: 48, color: "#1890ff", marginBottom: 16 }} />
+          <Title level={3}>Find Reviews</Title>
+          <Text type="secondary">Search for reviews by Review ID or Book ID</Text>
+        </div>
 
-      <Card style={{ marginBottom: "24px" }}>
-        <form onSubmit={handleSubmit}>
-          <Space.Compact style={{ width: "100%" }}>
-            <Input
-              placeholder="Enter Book ID"
-              type="number"
-              value={inputId}
-              onChange={(e) => setInputId(e.target.value)}
-              min="1"
-              size="large"
-            />
-            <Button type="primary" htmlType="submit" icon={<SearchOutlined />} size="large">
-              Search
-            </Button>
-          </Space.Compact>
-        </form>
+        <Form form={form} layout="vertical" onFinish={handleSearch} size="large">
+          <Form.Item name="reviewId" label="Review ID">
+            <Input placeholder="Enter review ID to find a specific review" allowClear />
+          </Form.Item>
+
+          <Form.Item name="bookId" label="Book ID">
+            <Input placeholder="Enter book ID to find all reviews for that book" allowClear />
+          </Form.Item>
+
+          <Form.Item>
+            <Space style={{ width: "100%", justifyContent: "center" }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                size="large"
+                icon={<SearchOutlined />}
+                style={{ minWidth: 120 }}
+              >
+                Search Reviews
+              </Button>
+              <Button
+                onClick={() => {
+                  form.resetFields()
+                  setReviews([])
+                  setSearched(false)
+                }}
+                size="large"
+              >
+                Clear
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
       </Card>
 
       {loading && (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <Spin size="large" />
-          <div style={{ marginTop: "16px" }}>Loading reviews for book ID: {bookId}...</div>
+        <div style={{ textAlign: "center", padding: "50px" }}>
+          <Spin size="large" tip="Searching reviews..." />
         </div>
       )}
 
-      {error && <Alert message="Error" description={error} type="error" showIcon style={{ marginBottom: "24px" }} />}
-
-      <Title level={3}>Reviews for Book ID: {bookId}</Title>
-
-      {!loading && reviews.length === 0 && !error && (
-        <Card>
-          <div style={{ textAlign: "center", padding: "40px" }}>
-            <Text type="secondary">No reviews found for this book.</Text>
-          </div>
-        </Card>
-      )}
-
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {reviews.map((review) => (
-          <Card
-            key={review.id}
-            hoverable
-            title={
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Space>
-                  <UserOutlined />
-                  <Text strong>{review.reviewer}</Text>
-                </Space>
-                <Tag color="#667eea" style={{ fontSize: "14px", padding: "2px 10px" }}>
-                  Review ID: {review.id}
-                </Tag>
-              </div>
-            }
-          >
-            <Space direction="vertical" size="small" style={{ width: "100%" }}>
-              <Space align="start">
-                <MessageOutlined />
-                <Paragraph style={{ margin: 0 }}>{review.comment}</Paragraph>
-              </Space>
-
-              <Divider style={{ margin: "12px 0" }} />
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Space>
-                  <CalendarOutlined />
-                  <Text type="secondary">{new Date(review.createdAt).toLocaleString()}</Text>
-                </Space>
-                <Button
-                  size="small"
-                  icon={<CopyOutlined />}
-                  onClick={() => {
-                    navigator.clipboard.writeText(review.id.toString())
-                    message.success(`Review ID ${review.id} copied to clipboard!`)
+      {!loading && searched && (
+        <Card title={`Search Results (${reviews.length} found)`}>
+          {reviews.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "50px" }}>
+              <Text type="secondary">No reviews found. Try different search criteria.</Text>
+            </div>
+          ) : (
+            <List
+              itemLayout="vertical"
+              dataSource={reviews}
+              renderItem={(review) => (
+                <List.Item
+                  style={{
+                    padding: "16px",
+                    border: "1px solid #f0f0f0",
+                    borderRadius: "8px",
+                    marginBottom: "16px",
+                    backgroundColor: "#fafafa",
                   }}
                 >
-                  Copy ID
-                </Button>
-              </div>
-            </Space>
-          </Card>
-        ))}
-      </Space>
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <Space>
+                        <Text strong>
+                          <UserOutlined style={{ marginRight: 4, color: "#1890ff" }} />
+                          {review.reviewer}
+                        </Text>
+                        <Text type="secondary">Review ID: {review.id}</Text>
+                        <Text type="secondary">
+                          <CalendarOutlined style={{ marginRight: 4 }} />
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </Text>
+                      </Space>
+                    </div>
+
+                    <Paragraph style={{ marginBottom: 8 }}>
+                      <Text strong>Review: </Text>
+                      {review.comment}
+                    </Paragraph>
+
+                    {review.rating && (
+                      <div style={{ marginBottom: 8 }}>
+                        <Text strong>Rating: </Text>
+                        <Text>{review.rating}/5 ⭐</Text>
+                      </div>
+                    )}
+
+                    <Text type="secondary">
+                      <BookOutlined style={{ marginRight: 4 }} />
+                      Book ID: {review.bookId}
+                    </Text>
+                  </div>
+                </List.Item>
+              )}
+            />
+          )}
+        </Card>
+      )}
     </div>
   )
 }

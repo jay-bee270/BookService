@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, Card, message } from "antd";
 import axios from "axios";
 
-const BASE_URL = "https://recommendation-8-c47c.onrender.com/api/books";
+const BASE_URL = "http://172.193.176.39:8081/api/books";
 
 const EditRecommendation = ({ book, onSuccess, onCancel }) => {
   const [form] = Form.useForm();

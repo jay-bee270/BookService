@@ -64,10 +64,20 @@
 }
 
 .header-avatar {
+  background-color: #083e74 ;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
 
 .header-avatar:hover {
   transform: scale(1.1);
+}
+
+.collapse-button {
+  margin-right: 16px;
+  font-size: 16px;
+}
+
+.collapse-button:hover {
+  background-color: #f0f0f0;
 }

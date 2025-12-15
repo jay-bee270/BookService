@@ -1,0 +1,17 @@
+.genre-filter {
+  width: 100%;
+}
+
+.genre-filter .ant-select-selector {
+  border-radius: 6px;
+}
+
+.genre-filter .ant-select-selection-item {
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .genre-filter .ant-select-dropdown {
+    max-height: 200px;
+  }
+}

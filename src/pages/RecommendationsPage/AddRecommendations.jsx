@@ -1,184 +1,110 @@
-import React, { useState } from "react";
-import axios from "axios";
-import {
-  Form,
-  Input,
-  Button,
-  message,
-  Descriptions,
-  Typography,
-  Spin,
-  Card,
-  Space,
-  Tag // ✅ Added
-} from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
+"use client"
 
-const { Text, Title } = Typography;
-const BASE_URL = "https://recommendation-8-c47c.onrender.com/api/books";
+import { useState } from "react"
+import { Card, Form, Input, Button, message, Rate, Space, Typography } from "antd"
+import { BookOutlined, UserOutlined } from "@ant-design/icons"
 
-const AddRecommendation = ({ onSuccess }) => {
-  const [loading, setLoading] = useState(false);
-  const [responseData, setResponseData] = useState(null);
-  const [error, setError] = useState(null);
-  const [form] = Form.useForm();
+const { Title, Text } = Typography
+const { TextArea } = Input
 
-  const onFinish = async (values) => {
-    setLoading(true);
-    setError(null);
-    setResponseData(null);
+const AddRecommendations = ({ onSuccess }) => {
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
 
-    const payload = {
-      bookName: values.bookName.trim(),
-      author: values.author.trim(),
-    };
-
+  const handleSubmit = async (values) => {
+    setLoading(true)
     try {
-      const { data } = await axios.post(BASE_URL, payload, {
+      const response = await fetch("http://172.193.176.39:8081/api/books", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
-        timeout: 15000,
-      });
+        body: JSON.stringify(values),
+      })
 
-      if (!data) throw new Error("No data received from server");
-
-      const result = {
-        id: data.bookId || data.id || "N/A",
-        bookName: data.bookName || data.title || payload.bookName,
-        author: data.author || payload.author,
-        createdAt: data.createdAt || new Date().toISOString(),
-      };
-
-      message.success("Book added successfully!");
-      setResponseData(result);
-      form.resetFields();
-      onSuccess && onSuccess(); // optional chaining
-    } catch (error) {
-      console.error("Add book error:", error);
-
-      let errorMessage = "Failed to add book. Please try again.";
-      if (error.response) {
-        errorMessage =
-          error.response.data?.message ||
-          error.response.statusText ||
-          `Server error (${error.response.status})`;
-      } else if (error.request) {
-        errorMessage = "No response from server. Please check your connection.";
+      if (response.ok) {
+        message.success("Book recommendation added successfully!")
+        form.resetFields()
+        onSuccess && onSuccess()
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || "Failed to add recommendation")
       }
-
-      setError(errorMessage);
-      message.error(errorMessage);
+    } catch (error) {
+      message.error("Error adding recommendation: " + error.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <Card
-      title={<Title level={4}>Add New Book Recommendation</Title>}
-      style={{ maxWidth: 800, margin: "0 auto" }}
-      bordered={false}
-      headStyle={{ borderBottom: 0 }}
-    >
-      <Spin spinning={loading} tip="Submitting book...">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          disabled={loading}
-          size="large"
+    <Card className="add-recommendation-card">
+      <div style={{ marginBottom: 24, textAlign: "center" }}>
+        <BookOutlined style={{ fontSize: 48, color: "#1890ff", marginBottom: 16 }} />
+        <Title level={3}>Add New Book Recommendation</Title>
+        <Text type="secondary">Share a book you love with the community</Text>
+      </div>
+
+      <Form form={form} layout="vertical" onFinish={handleSubmit} size="large">
+        <Form.Item
+          name="bookName"
+          label="Book Title"
+          rules={[{ required: true, message: "Please enter the book title" }]}
         >
-          <Form.Item
-            label={<Text strong>Book Name</Text>}
-            name="bookName"
-            rules={[
-              { required: true, message: "Please enter the book name", whitespace: true },
-              { min: 2, message: "Book name must be at least 2 characters" },
-              { max: 100, message: "Book name must be less than 100 characters" },
-            ]}
-            validateFirst
-          >
-            <Input placeholder="Enter book title" allowClear showCount maxLength={100} />
-          </Form.Item>
+          <Input prefix={<BookOutlined />} placeholder="e.g. Atomic Habits" />
+        </Form.Item>
 
-          <Form.Item
-            label={<Text strong>Author</Text>}
-            name="author"
-            rules={[
-              { required: true, message: "Please enter the author's name", whitespace: true },
-              { min: 2, message: "Author name must be at least 2 characters" },
-              { max: 50, message: "Author name must be less than 50 characters" },
-            ]}
-            validateFirst
-          >
-            <Input placeholder="Enter author name" allowClear showCount maxLength={50} />
-          </Form.Item>
+        <Form.Item
+          name="author"
+          label="Author"
+          rules={[{ required: true, message: "Please enter the author name" }]}
+        >
+          <Input prefix={<UserOutlined />} placeholder="e.g. James Clear" />
+        </Form.Item>
 
-          <Form.Item>
-            <Space>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                size="large"
-                style={{ width: 180 }}
-              >
-                {loading ? "Submitting..." : "Submit Book"}
-              </Button>
-              <Button htmlType="button" onClick={() => form.resetFields()} size="large">
-                Reset Form
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
+        <Form.Item
+          name="rating"
+          label="Your Rating"
+          rules={[{ required: true, message: "Please rate this book" }]}
+        >
+          <Rate allowHalf />
+        </Form.Item>
 
-        {error && (
-          <div style={{ marginTop: 24 }}>
-            <Text type="danger">
-              <strong>Error:</strong> {error}
-            </Text>
-          </div>
-        )}
+        <Form.Item
+          name="description"
+          label="Why do you recommend this book?"
+          rules={[
+            { required: true, message: "Please tell us why you love this book" },
+            { min: 20, message: "Please write at least 20 characters" }
+          ]}
+        >
+          <TextArea
+            rows={5}
+            placeholder="Share what makes this book special, how it impacted you, or who should read it..."
+            showCount
+            maxLength={800}
+          />
+        </Form.Item>
 
-        {responseData && (
-          <Card style={{ marginTop: 24 }} bordered={false} bodyStyle={{ padding: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
-              <CheckCircleOutlined
-                style={{ color: "#52c41a", fontSize: 24, marginRight: 8 }}
-              />
-              <Title level={5} style={{ margin: 0 }}>
-                Successfully Added Book
-              </Title>
-            </div>
-
-            <Descriptions
-              bordered
-              column={1}
-              size="middle"
-              labelStyle={{ fontWeight: "bold", width: "120px" }}
+        <Form.Item style={{ marginTop: 32 }}>
+          <Space style={{ width: "100%", justifyContent: "center" }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              size="large"
+              style={{ minWidth: 160 }}
             >
-              <Descriptions.Item label="ID">
-                <Tag color="blue">{responseData.id}</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Book Name">
-                {responseData.bookName}
-              </Descriptions.Item>
-              <Descriptions.Item label="Author">
-                {responseData.author}
-              </Descriptions.Item>
-              {responseData.createdAt && (
-                <Descriptions.Item label="Created At">
-                  {new Date(responseData.createdAt).toLocaleString()}
-                </Descriptions.Item>
-              )}
-            </Descriptions>
-          </Card>
-        )}
-      </Spin>
+              Add Recommendation
+            </Button>
+            <Button onClick={() => form.resetFields()} size="large">
+              Clear Form
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default AddRecommendation;
+export default AddRecommendations

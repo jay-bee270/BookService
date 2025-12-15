@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+dist
+build
+.git
+.gitignore
+.vscode
+.DS_Store
+README.md

@@ -1,9 +1,31 @@
 .recommendations-page {
   width: 100%;
+  margin-top: 23%;
 }
 
 .recommendations-card {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: none;
+}
+
+.add-recommendation-card,
+.edit-recommendation-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Recommendations.css */
+.ant-popconfirm {
+  z-index: 10000 !important;
+}
+
+@media (max-width: 768px) {
+  .add-recommendation-card,
+  .edit-recommendation-card {
+    margin: 0 16px;
+  }
 }

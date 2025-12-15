@@ -1,17 +1,18 @@
 "use client"
-import { Layout, Menu, Modal } from "antd"
+import { Layout, Menu, Modal, Button } from "antd"
 import {
   DashboardOutlined,
-  AppstoreOutlined,
   BookOutlined,
   StarOutlined,
   MessageOutlined,
   HeartOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  MenuOutlined,
+  CloseOutlined,
 } from "@ant-design/icons"
 import { useNavigate, useLocation } from "react-router-dom"
 import "./Sidebar.css"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
@@ -21,11 +22,31 @@ function Sidebar({ collapsed, onLogout }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect mobile screen
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+      if (window.innerWidth > 768) {
+        setMobileOpen(false)
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [location.pathname])
 
   const getSelectedKey = () => {
     const path = location.pathname
     if (path === "/" || path === "/dashboard") return "1"
-    // if (path === "/composite") return "2"
     if (path === "/books") return "3"
     if (path === "/recommendations") return "4"
     if (path === "/reviews") return "5"
@@ -33,32 +54,21 @@ function Sidebar({ collapsed, onLogout }) {
   }
 
   const handleLogout = () => {
-    // Call parent logout handler
     onLogout()
-    
-    // Show success message
     toast.success("Logged out successfully!", {
       position: "top-right",
       autoClose: 2000,
     })
-
-    // Redirect to login page
     navigate("/signin", { replace: true })
-
-    // Close the modal
     setIsLogoutModalOpen(false)
   }
 
-  // ... rest of your Sidebar component remains the same ...
   const handleMenuClick = (e) => {
     const { key } = e
     switch (key) {
       case "1":
         navigate("/dashboard")
         break
-      // case "2":
-      //   navigate("/composite")
-      //   break
       case "3":
         navigate("/books")
         break
@@ -83,34 +93,45 @@ function Sidebar({ collapsed, onLogout }) {
       type: "group",
       children: [
         { key: "1", icon: <DashboardOutlined />, label: "Dashboard" },
-        // { key: "2", icon: <AppstoreOutlined />, label: "Composite" },
         { key: "3", icon: <BookOutlined />, label: "Books" },
         { key: "4", icon: <StarOutlined />, label: "Recommendations" },
         { key: "5", icon: <MessageOutlined />, label: "Reviews" },
       ],
     },
     { type: "divider" },
-    {
-      key: "account-section",
-      label: "ACCOUNT",
-      type: "group",
-      children: [
-        {
-          key: "6",
-          icon: <LogoutOutlined />,
-          label: "Logout",
-          danger: true,
-        },
-      ],
-    },
+    
   ]
 
   return (
     <>
-      <Sider width={250} collapsible collapsed={collapsed} className="dashboard-sidebar">
+      {/* Mobile Menu Toggle Button */}
+      {isMobile && (
+        <Button
+          className="mobile-menu-toggle"
+          icon={mobileOpen ? <CloseOutlined /> : <MenuOutlined />}
+          onClick={() => setMobileOpen(!mobileOpen)}
+          type="primary"
+        />
+      )}
+
+      {/* Overlay for mobile */}
+      {isMobile && mobileOpen && (
+        <div 
+          className="sidebar-overlay active"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <Sider 
+        width={250} 
+        collapsible={!isMobile}
+        collapsed={!isMobile && collapsed}
+        className={`dashboard-sidebar ${isMobile && mobileOpen ? 'mobile-open' : ''}`}
+        trigger={null}
+      >
         <div className="sidebar-logo">
           <div className="logo-icon">📚</div>
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <div className="logo-content">
               <span className="logo-title">Book Dashboard</span>
               <span className="logo-subtitle">Management System</span>
@@ -127,7 +148,7 @@ function Sidebar({ collapsed, onLogout }) {
           onClick={handleMenuClick}
         />
 
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
           <div className="sidebar-upgrade">
             <div className="upgrade-card">
               <div className="upgrade-icon">

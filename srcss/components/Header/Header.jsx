@@ -1,12 +1,12 @@
 "use client"
 
-import { Layout, Input, Badge, Avatar, Space } from "antd"
-import { SearchOutlined, BellOutlined, UserOutlined } from "@ant-design/icons"
+import { Layout, Input, Badge, Avatar, Space, Button } from "antd"
+import { SearchOutlined, BellOutlined, UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons"
 import "./Header.css"
 
 const { Header: AntHeader } = Layout
 
-const Header = () => {
+const Header = ({ onCollapse, collapsed }) => {
   const handleSearch = (value) => {
     console.log("Search:", value)
   }
@@ -22,12 +22,13 @@ const Header = () => {
   return (
     <AntHeader className="header-container">
       <div className="header-left">
-        <div className="header-logo">📊 Muse Dashboard</div>
-        <div className="header-nav">
-          <span className="nav-item active">Dashboard</span>
-          <span className="nav-item">Dashboard</span>
+        <Button
+          type="text"
+          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          onClick={() => onCollapse(!collapsed)}
+          className="collapse-button"
+        />
         </div>
-      </div>
 
       <Space size="large" className="header-right">
         <Input

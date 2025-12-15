@@ -1,186 +1,148 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Row, Col, Card, Statistic, Tooltip, Spin } from "antd"
-import { ArrowUpOutlined, ArrowDownOutlined, InfoCircleOutlined } from "@ant-design/icons"
+import { Row, Col, Card, Statistic, Spin } from "antd"
+import {
+  BookOutlined,
+  StarOutlined,
+  MessageOutlined,
+  TrophyOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from "@ant-design/icons"
 import "./StatsCards.css"
 
 const StatsCards = () => {
-  const [books, setBooks] = useState([])
+  const [stats, setStats] = useState({
+    totalBooks: 0,
+    totalRecommendations: 0,
+    totalReviews: 0,
+    averageRating: 0,
+  })
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [stats, setStats] = useState([])
-
-  const fetchBooks = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch("https://book-services-group-a.onrender.com/api/v1/products")
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`)
-      }
-      const data = await res.json()
-      setBooks(data)
-      calculateStats(data)
-      setError(null)
-    } catch (err) {
-      setError(err.message || "Failed to fetch books")
-      console.error("Error fetching books:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const calculateStats = (booksData) => {
-    // Calculate total books
-    const totalBooks = booksData.length
-
-    // Calculate unique authors
-    const uniqueAuthors = new Set(
-      booksData.map((book) => book.productAuthor).filter((author) => author && author.trim() !== ""),
-    ).size
-
-    // Calculate books with descriptions (as a proxy for "complete" books)
-    const booksWithDescriptions = booksData.filter(
-      (book) => book.productDescription && book.productDescription.trim() !== "",
-    ).length
-
-    // Calculate average description length (as a quality metric)
-    const avgDescriptionLength =
-      booksData.reduce((sum, book) => {
-        return sum + (book.productDescription ? book.productDescription.length : 0)
-      }, 0) / totalBooks
-
-    // Simulate some trends (in a real app, you'd compare with historical data)
-    const simulatedTrends = {
-      totalBooks: Math.random() > 0.5 ? "up" : "down",
-      authors: Math.random() > 0.3 ? "up" : "down",
-      complete: Math.random() > 0.4 ? "up" : "down",
-      quality: Math.random() > 0.6 ? "up" : "down",
-    }
-
-    const calculatedStats = [
-      {
-        title: "Total Books",
-        value: totalBooks,
-        prefix: "",
-        suffix: "",
-        trend: simulatedTrends.totalBooks,
-        trendValue: simulatedTrends.totalBooks === "up" ? "+12%" : "-5%",
-        icon: "📚",
-        color: "#667eea",
-        description: "Books in collection",
-        tooltip: "Total number of books in the library collection including all genres and formats",
-      },
-      {
-        title: "Total Authors",
-        value: uniqueAuthors,
-        prefix: "",
-        suffix: "",
-        trend: simulatedTrends.authors,
-        trendValue: simulatedTrends.authors === "up" ? "+8%" : "-2%",
-        icon: "✍️",
-        color: "#fa541c",
-        description: "Unique authors",
-        tooltip: "Number of unique authors represented in the collection",
-      },
-      {
-        title: "Complete Books",
-        value: booksWithDescriptions,
-        prefix: "",
-        suffix: "",
-        trend: simulatedTrends.complete,
-        trendValue: simulatedTrends.complete === "up" ? "+15%" : "-3%",
-        icon: "✅",
-        color: "#52c41a",
-        description: "With descriptions",
-        tooltip: "Books that have complete information including descriptions",
-      },
-      {
-        title: "Avg Description",
-        value: Math.round(avgDescriptionLength),
-        prefix: "",
-        suffix: " chars",
-        trend: simulatedTrends.quality,
-        trendValue: simulatedTrends.quality === "up" ? "+7%" : "-4%",
-        icon: "📝",
-        color: "#722ed1",
-        description: "Content quality",
-        tooltip: "Average length of book descriptions, indicating content richness",
-      },
-    ]
-
-    setStats(calculatedStats)
-  }
 
   useEffect(() => {
-    fetchBooks()
+    const fetchStats = async () => {
+      try {
+        // Fetch books
+        const booksRes = await fetch("http://20.121.232.133:8080/api/v1/products")
+        const books = await booksRes.json()
+
+        // Fetch recommendations
+        const recsRes = await fetch("http://172.193.176.39:8081/api/books")
+        const recommendations = await recsRes.json()
+
+        // Calculate total reviews from all books
+        let totalReviews = 0
+        let totalRating = 0
+        let reviewCount = 0
+
+        for (const book of books) {
+          try {
+            const reviewRes = await fetch("http://9.169.178.97:8080/reviews/book/1")
+            const reviews = await reviewRes.json()
+            totalReviews += reviews.length
+
+            reviews.forEach((review) => {
+              if (review.rating) {
+                totalRating += review.rating
+                reviewCount++
+              }
+            })
+          } catch (err) {
+            console.log("Error fetching reviews for book:", book.productId)
+          }
+        }
+
+        setStats({
+          totalBooks: books.length,
+          totalRecommendations: Array.isArray(recommendations) ? recommendations.length : 0,
+          totalReviews,
+          averageRating: reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : 0,
+        })
+      } catch (error) {
+        console.error("Error fetching stats:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
   }, [])
 
-  const handleCardClick = (title) => {
-    console.log(`${title} card clicked - Navigate to detailed ${title.toLowerCase()} view`)
-    // Navigation logic based on the card clicked
-    switch (title) {
-      case "Total Books":
-        console.log("Navigate to books overview")
-        break
-      case "Total Authors":
-        console.log("Navigate to authors list")
-        break
-      case "Complete Books":
-        console.log("Navigate to complete books")
-        break
-      case "Avg Description":
-        console.log("Navigate to content quality analysis")
-        break
-      default:
-        break
-    }
-  }
+  const statsData = [
+    {
+      title: "Total Books",
+      value: stats.totalBooks,
+      icon: <BookOutlined />,
+      color: "#1890ff",
+      trend: "up",
+      trendValue: 12,
+    },
+    {
+      title: "Recommendations",
+      value: stats.totalRecommendations,
+      icon: <StarOutlined />,
+      color: "#52c41a",
+      trend: "up",
+      trendValue: 8,
+    },
+    {
+      title: "Total Reviews",
+      value: stats.totalReviews,
+      icon: <MessageOutlined />,
+      color: "#faad14",
+      trend: "up",
+      trendValue: 15,
+    },
+    {
+      title: "Average Rating",
+      value: stats.averageRating,
+      icon: <TrophyOutlined />,
+      color: "#f5222d",
+      trend: "up",
+      trendValue: 2.5,
+      suffix: "/5",
+    },
+  ]
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
+      <div className="stats-loading">
         <Spin size="large" tip="Loading statistics..." />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
-        <Card>
-          <p style={{ color: "#ff4d4f" }}>Error loading statistics: {error}</p>
-          <button onClick={fetchBooks} style={{ marginTop: "10px" }}>
-            Retry
-          </button>
-        </Card>
       </div>
     )
   }
 
   return (
     <Row gutter={[24, 24]} className="stats-cards-container">
-      {stats.map((stat, index) => (
-        <Col span={6} key={index}>
-          <Card className="stats-card" bodyStyle={{ padding: "20px" }} onClick={() => handleCardClick(stat.title)}>
+      {statsData.map((stat, index) => (
+        <Col xs={24} sm={12} lg={6} key={index}>
+          <Card className="stats-card" hoverable>
             <div className="stats-card-content">
-              <div className="stats-info">
-                <div className="stats-header">
-                  <div className="stats-title">{stat.title}</div>
-                  <Tooltip title={stat.tooltip}>
-                    <InfoCircleOutlined className="stats-info-icon" />
-                  </Tooltip>
-                </div>
-                <Statistic value={stat.value} prefix={stat.prefix} suffix={stat.suffix} className="stats-value" />
-                <div className={`stats-trend ${stat.trend}`}>
-                  {stat.trend === "up" ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                  {stat.trendValue}
-                  <span className="trend-period">vs last month</span>
-                </div>
-                <div className="stats-description">{stat.description}</div>
-              </div>
-              <div className="stats-icon" style={{ background: stat.color }}>
+              <div className="stats-icon" style={{ color: stat.color }}>
                 {stat.icon}
+              </div>
+              <div className="stats-info">
+                <Statistic
+                  title={stat.title}
+                  value={stat.value}
+                  suffix={stat.suffix}
+                  valueStyle={{
+                    color: stat.color,
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                  }}
+                />
+                <div className="stats-trend">
+                  {stat.trend === "up" ? (
+                    <ArrowUpOutlined style={{ color: "#52c41a" }} />
+                  ) : (
+                    <ArrowDownOutlined style={{ color: "#f5222d" }} />
+                  )}
+                  <span className={`trend-value ${stat.trend}`}>{stat.trendValue}%</span>
+                  <span className="trend-text">vs last month</span>
+                </div>
               </div>
             </div>
           </Card>

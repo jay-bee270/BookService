@@ -7,8 +7,9 @@
   left: 0;
   top: 0;
   bottom: 0;
-  z-index: 10;
+  z-index: 1000;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
 }
 
 .sidebar-logo {
@@ -31,6 +32,7 @@
   border-radius: 12px;
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  flex-shrink: 0;
 }
 
 .logo-content {
@@ -59,9 +61,9 @@
   background: transparent;
   flex: 1;
   overflow-y: auto;
+  max-height: calc(100vh - 280px);
 }
 
-/* Ensure all menu items are visible */
 .sidebar-menu .ant-menu-item,
 .sidebar-menu .ant-menu-submenu-title {
   margin: 4px 16px;
@@ -76,7 +78,7 @@
 }
 
 .sidebar-menu .ant-menu-item-selected {
-  background: linear-gradient(135deg, #667eea 0%, #e6e9ec 100%) !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
@@ -91,12 +93,6 @@
   color: #667eea !important;
 }
 
-.sidebar-menu .ant-menu-item-selected:hover {
-  background: linear-gradient(135deg, #667eea 0%, #898c8f  100%) !important;
-  color: white !important;
-}
-
-/* Group titles styling */
 .sidebar-menu .ant-menu-item-group-title {
   padding: 16px 32px 8px !important;
   font-size: 11px !important;
@@ -109,19 +105,16 @@
   line-height: 1.2 !important;
 }
 
-/* Group list styling */
 .sidebar-menu .ant-menu-item-group-list {
   margin: 0 !important;
 }
 
-/* Divider styling */
 .sidebar-menu .ant-menu-item-divider {
   margin: 16px 24px !important;
   background: rgba(0, 0, 0, 0.06) !important;
   height: 1px !important;
 }
 
-/* Icon styling */
 .sidebar-menu .ant-menu-item-icon,
 .sidebar-menu .anticon {
   font-size: 16px;
@@ -129,7 +122,6 @@
   transition: color 0.2s ease;
 }
 
-/* Collapsed state adjustments */
 .ant-layout-sider-collapsed .sidebar-menu .ant-menu-item {
   padding-left: 24px !important;
   text-align: center;
@@ -151,9 +143,9 @@
 }
 
 .upgrade-card {
-  background: linear-gradient(135deg, #667eea 0%, #2b88e6  100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 16px;
-  padding: 14px;
+  padding: 20px;
   text-align: center;
   color: white;
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
@@ -174,7 +166,7 @@
 .upgrade-card p {
   color: rgba(255, 255, 255, 0.9);
   font-size: 13px;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   line-height: 1.4;
 }
 
@@ -197,22 +189,233 @@
   transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-  .dashboard-sidebar {
-    position: fixed;
-    z-index: 999;
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  border: none;
+  width: 70px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: -0.5%;
+  margin-top: 7%;
+}
+
+/* Close button inside sidebar (mobile only) */
+.sidebar-close-button {
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  z-index: 1;
+  display: none;
+}
+
+.sidebar-close-button .close-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  color: #595959;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-close-button .close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #262626;
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  cursor: pointer;
+}
+
+/* Tablet Responsive (768px - 1024px) */
+@media (max-width: 1024px) {
+  .sidebar-upgrade {
+    bottom: 16px;
+    left: 12px;
+    right: 12px;
+  }
+  
+  .upgrade-card {
+    padding: 16px;
+  }
+  
+  .upgrade-card h4 {
+    font-size: 14px;
+  }
+  
+  .upgrade-card p {
+    font-size: 12px;
+    margin-bottom: 12px;
   }
 }
 
-/* Ensure menu items are always visible */
-.sidebar-menu .ant-menu-item {
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: flex !important;
+/* Mobile Responsive (below 768px) */
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
+  }
+  
+  /* Show close button in sidebar on mobile */
+  .sidebar-close-button {
+    display: block;
+  }
+  
+  .sidebar-logo {
+    height: 70px;
+    padding: 0 20px;
+    padding-right: 60px; /* Space for close button */
+  }
+  
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .logo-title {
+    font-size: 14px;
+  }
+  
+  .logo-subtitle {
+    font-size: 11px;
+  }
+  
+  .sidebar-menu {
+    padding: 16px 0;
+    max-height: calc(100vh - 240px);
+  }
+  
+  .sidebar-menu .ant-menu-item {
+    margin: 3px 12px;
+    height: 40px;
+    line-height: 40px;
+  }
+  
+  .sidebar-upgrade {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+  }
+  
+  .upgrade-card {
+    padding: 14px;
+  }
+  
+  .upgrade-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .upgrade-card h4 {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  
+  .upgrade-card p {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+  
+  .upgrade-btn {
+    padding: 8px 16px;
+    font-size: 11px;
+  }
 }
 
-/* Fix for potential overflow issues */
-.sidebar-menu {
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+/* Small Mobile (below 576px) */
+@media (max-width: 576px) {
+  .sidebar-logo {
+    height: 60px;
+    padding: 0 16px;
+  }
+  
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+  
+  .sidebar-menu .ant-menu-item {
+    margin: 2px 8px;
+    height: 38px;
+    line-height: 38px;
+    font-size: 14px;
+  }
+  
+  .sidebar-menu .ant-menu-item-icon,
+  .sidebar-menu .anticon {
+    font-size: 14px;
+    margin-right: 10px;
+  }
+}
+
+/* Extra Small Mobile (below 480px) */
+@media (max-width: 480px) {
+  .mobile-menu-toggle {
+    top: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .sidebar-upgrade {
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+  }
+  
+  .upgrade-card {
+    padding: 12px;
+  }
+  
+  .upgrade-card h4 {
+    font-size: 12px;
+  }
+  
+  .upgrade-card p {
+    font-size: 10px;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .sidebar-upgrade {
+    display: none;
+  }
+  
+  .sidebar-menu {
+    max-height: calc(100vh - 100px);
+  }
 }

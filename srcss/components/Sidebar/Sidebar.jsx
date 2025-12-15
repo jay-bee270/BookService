@@ -1,92 +1,160 @@
 "use client"
-
-import { useState } from "react"
-import { Layout, Menu, Card, Button } from "antd"
+import { Layout, Menu, Modal } from "antd"
 import {
   DashboardOutlined,
-  ShoppingCartOutlined,
-  FileTextOutlined,
-  TeamOutlined,
-  BarChartOutlined,
-  UserOutlined,
-  LogoutOutlined,
+  AppstoreOutlined,
+  BookOutlined,
+  StarOutlined,
+  MessageOutlined,
+  HeartOutlined,
+  LogoutOutlined
 } from "@ant-design/icons"
+import { useNavigate, useLocation } from "react-router-dom"
 import "./Sidebar.css"
+import { useState } from "react"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const { Sider } = Layout
 
-const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false)
+function Sidebar({ collapsed, onLogout }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+
+  const getSelectedKey = () => {
+    const path = location.pathname
+    if (path === "/" || path === "/dashboard") return "1"
+    // if (path === "/composite") return "2"
+    if (path === "/books") return "3"
+    if (path === "/recommendations") return "4"
+    if (path === "/reviews") return "5"
+    return "1"
+  }
+
+  const handleLogout = () => {
+    // Call parent logout handler
+    onLogout()
+    
+    // Show success message
+    toast.success("Logged out successfully!", {
+      position: "top-right",
+      autoClose: 2000,
+    })
+
+    // Redirect to login page
+    navigate("/signin", { replace: true })
+
+    // Close the modal
+    setIsLogoutModalOpen(false)
+  }
+
+  // ... rest of your Sidebar component remains the same ...
+  const handleMenuClick = (e) => {
+    const { key } = e
+    switch (key) {
+      case "1":
+        navigate("/dashboard")
+        break
+      // case "2":
+      //   navigate("/composite")
+      //   break
+      case "3":
+        navigate("/books")
+        break
+      case "4":
+        navigate("/recommendations")
+        break
+      case "5":
+        navigate("/reviews")
+        break
+      case "6":
+        setIsLogoutModalOpen(true)
+        break
+      default:
+        break
+    }
+  }
 
   const menuItems = [
     {
-      key: "1",
-      icon: <DashboardOutlined />,
-      label: "Dashboard",
+      key: "main-section",
+      label: "MAIN NAVIGATION",
+      type: "group",
+      children: [
+        { key: "1", icon: <DashboardOutlined />, label: "Dashboard" },
+        // { key: "2", icon: <AppstoreOutlined />, label: "Composite" },
+        { key: "3", icon: <BookOutlined />, label: "Books" },
+        { key: "4", icon: <StarOutlined />, label: "Recommendations" },
+        { key: "5", icon: <MessageOutlined />, label: "Reviews" },
+      ],
     },
+    { type: "divider" },
     {
-      key: "2",
-      icon: <ShoppingCartOutlined />,
-      label: "Sales",
-    },
-    {
-      key: "3",
-      icon: <FileTextOutlined />,
-      label: "Billing",
-    },
-    {
-      key: "4",
-      icon: <TeamOutlined />,
-      label: "RTL",
-    },
-    {
-      key: "5",
-      icon: <BarChartOutlined />,
-      label: "Profile",
-    },
-    {
-      key: "6",
-      icon: <UserOutlined />,
-      label: "Sign In",
-    },
-    {
-      key: "7",
-      icon: <LogoutOutlined />,
-      label: "Sign Up",
+      key: "account-section",
+      label: "ACCOUNT",
+      type: "group",
+      children: [
+        {
+          key: "6",
+          icon: <LogoutOutlined />,
+          label: "Logout",
+          danger: true,
+        },
+      ],
     },
   ]
 
-  const handleMenuClick = (e) => {
-    console.log("Menu clicked:", e.key)
-  }
-
-  const handleDocumentationClick = () => {
-    console.log("Documentation clicked")
-    window.open("https://ant.design/docs/react/introduce", "_blank")
-  }
-
   return (
-    <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} className="sidebar-container" width={250}>
-      <div className="sidebar-content">
+    <>
+      <Sider width={250} collapsible collapsed={collapsed} className="dashboard-sidebar">
+        <div className="sidebar-logo">
+          <div className="logo-icon">📚</div>
+          {!collapsed && (
+            <div className="logo-content">
+              <span className="logo-title">Book Dashboard</span>
+              <span className="logo-subtitle">Management System</span>
+            </div>
+          )}
+        </div>
+
         <Menu
+          theme="light"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          selectedKeys={[getSelectedKey()]}
           items={menuItems}
           className="sidebar-menu"
           onClick={handleMenuClick}
         />
 
-        <Card className="help-card" bodyStyle={{ padding: "16px" }}>
-          <div className="help-content">
-            <div className="help-title">Need Help?</div>
-            <div className="help-subtitle">Please check our docs</div>
-            <Button type="primary" ghost size="small" className="help-button" onClick={handleDocumentationClick}>
-              DOCUMENTATION
-            </Button>
+        {!collapsed && (
+          <div className="sidebar-upgrade">
+            <div className="upgrade-card">
+              <div className="upgrade-icon">
+                <HeartOutlined />
+              </div>
+              <h4>Discover Books</h4>
+              <p>Explore personalized recommendations and reviews</p>
+              <button className="upgrade-btn" onClick={() => navigate("/recommendations")}>
+                EXPLORE NOW
+              </button>
+            </div>
           </div>
-        </Card>
-      </div>
-    </Sider>
+        )}
+      </Sider>
+
+      <Modal
+        title="Confirm Logout"
+        open={isLogoutModalOpen}
+        onOk={handleLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
+        okText="Logout"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to log out?</p>
+      </Modal>
+    </>
   )
 }
 
